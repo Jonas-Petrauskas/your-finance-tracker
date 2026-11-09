@@ -19,3 +19,4 @@ npm run dev
 - GraphiQL: http://localhost:4000/graphql
 
 Use GraphiQL to try the same queries and mutations the UI uses while learning GraphQL.
+# your-finance-tracker
