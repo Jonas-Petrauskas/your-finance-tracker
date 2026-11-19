@@ -29,6 +29,9 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
   const [direction, setDirection] = useState<Direction>(
     initial?.direction ?? 'EXPENSE',
   )
+  const [billingDay, setBillingDay] = useState(
+    initial?.billingDay != null ? String(initial.billingDay) : '',
+  )
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [active, setActive] = useState(initial?.active ?? true)
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +41,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
     setAmount(initial ? centsToInput(initial.amountCents) : '')
     setCategory(initial?.category ?? 'SUBSCRIPTION')
     setDirection(initial?.direction ?? 'EXPENSE')
+    setBillingDay(initial?.billingDay != null ? String(initial.billingDay) : '')
     setNotes(initial?.notes ?? '')
     setActive(initial?.active ?? true)
     setError(null)
@@ -57,12 +61,25 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           setError('Enter a positive amount')
           return
         }
+        let parsedBillingDay: number | null = null
+        if (billingDay.trim()) {
+          parsedBillingDay = Number(billingDay)
+          if (
+            !Number.isInteger(parsedBillingDay) ||
+            parsedBillingDay < 1 ||
+            parsedBillingDay > 31
+          ) {
+            setError('Billing day must be between 1 and 31')
+            return
+          }
+        }
         setError(null)
         void onSubmit({
           name: name.trim(),
           amountCents,
           category,
           direction,
+          billingDay: parsedBillingDay,
           notes: notes.trim() || null,
           active,
         })
@@ -152,6 +169,21 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           </label>
         </div>
       </fieldset>
+
+      <label className="grid gap-1 text-sm">
+        <span className="text-(--muted)">
+          Billing day (optional, 1–31)
+        </span>
+        <input
+          className="rounded-md border border-(--line) px-3 py-2"
+          inputMode="numeric"
+          value={billingDay}
+          onChange={(event) => setBillingDay(event.target.value)}
+          placeholder="e.g. 1 for rent, 15 for Netflix"
+          min={1}
+          max={31}
+        />
+      </label>
 
       <label className="grid gap-1 text-sm">
         <span className="text-(--muted)">Notes (optional)</span>

@@ -21,20 +21,36 @@ enum Category {
   OTHER
 }
 
+model Month {
+  id               String          @id @default(cuid())
+  year             Int
+  month            Int
+  bankBalanceCents Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  items            RecurringItem[]
+
+  @@unique([year, month])
+}
+
 model RecurringItem {
   id          String    @id @default(cuid())
+  monthId     String
+  month       Month     @relation(fields: [monthId], references: [id], onDelete: Cascade)
   name        String
   amountCents Int
   direction   Direction
   category    Category
+  billingDay  Int?
   notes       String?
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([monthId])
 }
 
 model Settings {
   id       Int    @id @default(1)
   currency String @default("EUR")
-  bankBalanceCents Int @default(0)
 }

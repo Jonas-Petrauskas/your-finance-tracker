@@ -1,19 +1,30 @@
 import { useMutation } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { GET_DASHBOARD, SET_CURRENCY } from '../graphql/operations'
+import { GET_HOME, GET_MONTH, SET_CURRENCY } from '../graphql/operations'
 
 type Props = {
   currency: string
+  year?: number
+  month?: number
 }
 
-export function CurrencySetting({ currency }: Props) {
+export function CurrencySetting({ currency, year, month }: Props) {
   const [value, setValue] = useState(currency)
 
   useEffect(() => {
     setValue(currency)
   }, [currency])
+
+  const refetchQueries =
+    year != null && month != null
+      ? [
+          { query: GET_HOME },
+          { query: GET_MONTH, variables: { year, month } },
+        ]
+      : [{ query: GET_HOME }]
+
   const [setCurrency, { loading }] = useMutation(SET_CURRENCY, {
-    refetchQueries: [{ query: GET_DASHBOARD }],
+    refetchQueries,
   })
 
   return (

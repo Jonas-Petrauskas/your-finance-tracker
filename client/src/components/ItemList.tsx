@@ -1,5 +1,10 @@
 import { formatMoney } from '../lib/format'
-import { CATEGORY_LABELS, type Category, type RecurringItem } from '../lib/types'
+import {
+  CATEGORY_LABELS,
+  formatBillingDay,
+  type Category,
+  type RecurringItem,
+} from '../lib/types'
 
 type Props = {
   title: string
@@ -50,11 +55,18 @@ export function ItemList({
                 >
                   <div>
                     <p className="font-medium text-(--ink)">{item.name}</p>
+                    {item.billingDay != null ? (
+                      <p className="text-sm text-(--muted)">
+                        Charged on the {formatBillingDay(item.billingDay)}
+                      </p>
+                    ) : null}
                     {item.notes ? (
                       <p className="text-sm text-(--muted)">{item.notes}</p>
                     ) : null}
                     {!item.active ? (
-                      <p className="text-xs text-(--muted)">Paused</p>
+                      <p className="text-xs text-(--muted)">
+                        Disabled for this month
+                      </p>
                     ) : null}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
@@ -66,7 +78,7 @@ export function ItemList({
                       className="rounded-md border border-(--line) px-2 py-1 text-xs"
                       onClick={() => onToggleActive(item)}
                     >
-                      {item.active ? 'Pause' : 'Resume'}
+                      {item.active ? 'Disable' : 'Enable'}
                     </button>
                     <button
                       type="button"

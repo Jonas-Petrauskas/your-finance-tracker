@@ -1,17 +1,26 @@
 import { formatMoney } from '../lib/format'
-import type { MonthlySummary } from '../lib/types'
+import type { KrakenBalance, MonthlySummary } from '../lib/types'
+import { KrakenBalanceCard } from './KrakenBalanceCard'
 
 type Props = {
   summary: MonthlySummary
   currency: string
   bankBalanceCents: number
+  krakenBalance?: KrakenBalance | null
+  krakenLoading?: boolean
 }
 
-export function SummaryStrip({ summary, currency, bankBalanceCents }: Props) {
+export function SummaryStrip({
+  summary,
+  currency,
+  bankBalanceCents,
+  krakenBalance,
+  krakenLoading = false,
+}: Props) {
   const leftNegative = summary.leftCents < 0
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <div className="rounded-xl border border-(--line) bg-(--panel) px-4 py-3 text-left">
         <p className="text-xs uppercase tracking-wide text-(--muted)">
           Income
@@ -47,6 +56,10 @@ export function SummaryStrip({ summary, currency, bankBalanceCents }: Props) {
           {formatMoney(bankBalanceCents, currency)}
         </p>
       </div>
+      <KrakenBalanceCard
+        krakenBalance={krakenBalance}
+        loading={krakenLoading}
+      />
     </section>
   )
 }

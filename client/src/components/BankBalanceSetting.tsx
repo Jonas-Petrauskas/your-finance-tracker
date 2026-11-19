@@ -1,10 +1,13 @@
 import { useMutation } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { GET_DASHBOARD, SET_BANK_BALANCE } from '../graphql/operations'
+import { GET_MONTH, SET_MONTH_BANK_BALANCE } from '../graphql/operations'
 import { centsToInput } from '../lib/format'
 
 type Props = {
+  monthId: string
   bankBalanceCents: number
+  year: number
+  month: number
 }
 
 function balanceToCents(value: string): number | null {
@@ -15,12 +18,20 @@ function balanceToCents(value: string): number | null {
   return Math.round(parsed * 100)
 }
 
-export function BankBalanceSetting({ bankBalanceCents }: Props) {
+export function BankBalanceSetting({
+  monthId,
+  bankBalanceCents,
+  year,
+  month,
+}: Props) {
   const [value, setValue] = useState(centsToInput(bankBalanceCents))
   const [error, setError] = useState<string | null>(null)
-  const [setBankBalance, { loading }] = useMutation(SET_BANK_BALANCE, {
-    refetchQueries: [{ query: GET_DASHBOARD }],
-  })
+  const [setMonthBankBalance, { loading }] = useMutation(
+    SET_MONTH_BANK_BALANCE,
+    {
+      refetchQueries: [{ query: GET_MONTH, variables: { year, month } }],
+    },
+  )
 
   useEffect(() => {
     setValue(centsToInput(bankBalanceCents))
@@ -37,7 +48,7 @@ export function BankBalanceSetting({ bankBalanceCents }: Props) {
           return
         }
         setError(null)
-        void setBankBalance({ variables: { amountCents } })
+        void setMonthBankBalance({ variables: { monthId, amountCents } })
       }}
     >
       <div className="flex items-end gap-2">
