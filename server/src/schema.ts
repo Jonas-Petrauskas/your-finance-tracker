@@ -1,6 +1,6 @@
 import { createSchema } from 'graphql-yoga'
 import type { Category, Direction, Prisma } from '@prisma/client'
-import { prisma } from './db.js'
+import { ensureSettings, prisma } from './db.js'
 import { getKrakenCryptoBalance } from './kraken.js'
 
 const MONTH_NAMES = [
@@ -17,6 +17,9 @@ const MONTH_NAMES = [
   'November',
   'December',
 ] as const
+
+const EXPENSE_ONLY = new Set<Category>(['SUBSCRIPTION', 'RENT', 'BILL', 'BANK'])
+const INCOME_ONLY = new Set<Category>(['GOVERNMENT'])
 
 const typeDefs = /* GraphQL */ `
   enum Direction {
@@ -43,6 +46,25 @@ const typeDefs = /* GraphQL */ `
     billingDay: Int
     notes: String
     active: Boolean!
+    paid: Boolean!
+    oneOff: Boolean!
+  }
+
+  type RecurringTemplate {
+    id: ID!
+    name: String!
+    amountCents: Int!
+    direction: Direction!
+    category: Category!
+    billingDay: Int
+    notes: String
+    active: Boolean!
+  }
+
+  type Goal {
+    id: ID!
+    name: String!
+    targetCents: Int!
   }
 
   type MonthlySummary {
@@ -57,6 +79,10 @@ const typeDefs = /* GraphQL */ `
     month: Int!
     label: String!
     bankBalanceCents: Int!
+    krakenBalanceCents: Int
+    krakenEarnCents: Int
+    krakenSpotCents: Int
+    krakenSnapshottedAt: String
     items: [RecurringItem!]!
     summary: MonthlySummary!
   }
@@ -73,6 +99,7 @@ const typeDefs = /* GraphQL */ `
     configured: Boolean!
     error: String
     updatedAt: String!
+    cached: Boolean!
   }
 
   input ItemInput {
@@ -83,14 +110,32 @@ const typeDefs = /* GraphQL */ `
     billingDay: Int
     notes: String
     active: Boolean
+    paid: Boolean
+    oneOff: Boolean
+  }
+
+  input TemplateInput {
+    name: String!
+    amountCents: Int!
+    direction: Direction!
+    category: Category!
+    billingDay: Int
+    notes: String
+    active: Boolean
+  }
+
+  input GoalInput {
+    name: String!
+    targetCents: Int!
   }
 
   type Query {
     months: [Month!]!
-    month(id: ID!): Month
     monthByDate(year: Int!, month: Int!): Month
     settings: Settings!
-    krakenBalance: KrakenBalance!
+    krakenBalance(forceRefresh: Boolean): KrakenBalance!
+    templates: [RecurringTemplate!]!
+    goals: [Goal!]!
   }
 
   type Mutation {
@@ -99,8 +144,16 @@ const typeDefs = /* GraphQL */ `
     createItem(monthId: ID!, input: ItemInput!): RecurringItem!
     updateItem(id: ID!, input: ItemInput!): RecurringItem!
     deleteItem(id: ID!): Boolean!
+    setItemPaid(id: ID!, paid: Boolean!): RecurringItem!
     setCurrency(currency: String!): Settings!
     setMonthBankBalance(monthId: ID!, amountCents: Int!): Month!
+    snapshotMonthKraken(monthId: ID!): Month!
+    createTemplate(input: TemplateInput!): RecurringTemplate!
+    updateTemplate(id: ID!, input: TemplateInput!): RecurringTemplate!
+    deleteTemplate(id: ID!): Boolean!
+    createGoal(input: GoalInput!): Goal!
+    updateGoal(id: ID!, input: GoalInput!): Goal!
+    deleteGoal(id: ID!): Boolean!
   }
 `
 
@@ -112,6 +165,23 @@ type ItemInput = {
   billingDay?: number | null
   notes?: string | null
   active?: boolean | null
+  paid?: boolean | null
+  oneOff?: boolean | null
+}
+
+type TemplateInput = {
+  name: string
+  amountCents: number
+  direction: Direction
+  category: Category
+  billingDay?: number | null
+  notes?: string | null
+  active?: boolean | null
+}
+
+type GoalInput = {
+  name: string
+  targetCents: number
 }
 
 type MonthRow = {
@@ -119,6 +189,10 @@ type MonthRow = {
   year: number
   month: number
   bankBalanceCents: number
+  krakenBalanceCents: number | null
+  krakenEarnCents: number | null
+  krakenSpotCents: number | null
+  krakenSnapshottedAt: Date | null
 }
 
 function monthLabel(year: number, month: number) {
@@ -138,14 +212,30 @@ function validateBillingDay(billingDay: number | null | undefined) {
   return billingDay
 }
 
-function validateItemInput(input: ItemInput) {
-  const name = input.name.trim()
-  if (!name) {
-    throw new Error('Name is required')
+function validateCategoryDirection(category: Category, direction: Direction) {
+  if (direction === 'EXPENSE' && INCOME_ONLY.has(category)) {
+    throw new Error(`${category} can only be used as income`)
   }
+  if (direction === 'INCOME' && EXPENSE_ONLY.has(category)) {
+    throw new Error(`${category} can only be used as an expense`)
+  }
+}
+
+function validateSharedItemFields(input: {
+  name: string
+  amountCents: number
+  direction: Direction
+  category: Category
+  billingDay?: number | null
+  notes?: string | null
+  active?: boolean | null
+}) {
+  const name = input.name.trim()
+  if (!name) throw new Error('Name is required')
   if (!Number.isInteger(input.amountCents) || input.amountCents <= 0) {
     throw new Error('Amount must be a positive integer (cents)')
   }
+  validateCategoryDirection(input.category, input.direction)
   return {
     name,
     amountCents: input.amountCents,
@@ -155,6 +245,27 @@ function validateItemInput(input: ItemInput) {
     notes: input.notes?.trim() ? input.notes.trim() : null,
     active: input.active ?? true,
   }
+}
+
+function validateItemInput(input: ItemInput) {
+  return {
+    ...validateSharedItemFields(input),
+    paid: input.paid ?? false,
+    oneOff: input.oneOff ?? false,
+  }
+}
+
+function validateTemplateInput(input: TemplateInput) {
+  return validateSharedItemFields(input)
+}
+
+function validateGoalInput(input: GoalInput) {
+  const name = input.name.trim()
+  if (!name) throw new Error('Name is required')
+  if (!Number.isInteger(input.targetCents) || input.targetCents <= 0) {
+    throw new Error('Target must be a positive integer (cents)')
+  }
+  return { name, targetCents: input.targetCents }
 }
 
 function validateCurrency(currency: string) {
@@ -189,11 +300,8 @@ async function summarizeMonth(monthId: string) {
   let incomeCents = 0
   let expenseCents = 0
   for (const item of active) {
-    if (item.direction === 'INCOME') {
-      incomeCents += item.amountCents
-    } else {
-      expenseCents += item.amountCents
-    }
+    if (item.direction === 'INCOME') incomeCents += item.amountCents
+    else expenseCents += item.amountCents
   }
   return {
     incomeCents,
@@ -202,16 +310,28 @@ async function summarizeMonth(monthId: string) {
   }
 }
 
-async function ensureSettings() {
-  return prisma.settings.upsert({
-    where: { id: 1 },
-    create: { id: 1, currency: 'EUR' },
-    update: {},
+async function snapshotKrakenOntoMonth(monthId: string) {
+  const live = await getKrakenCryptoBalance({ forceRefresh: true })
+  if (live.error || !live.configured) {
+    return prisma.month.findUniqueOrThrow({ where: { id: monthId } })
+  }
+  return prisma.month.update({
+    where: { id: monthId },
+    data: {
+      krakenBalanceCents: live.balanceCents,
+      krakenEarnCents: live.earnCents,
+      krakenSpotCents: live.spotCents,
+      krakenSnapshottedAt: new Date(),
+    },
   })
 }
 
 const monthResolvers = {
   label: (parent: MonthRow) => monthLabel(parent.year, parent.month),
+  krakenSnapshottedAt: (parent: MonthRow) =>
+    parent.krakenSnapshottedAt
+      ? parent.krakenSnapshottedAt.toISOString()
+      : null,
   items: (parent: MonthRow) =>
     prisma.recurringItem.findMany({
       where: { monthId: parent.id },
@@ -229,8 +349,6 @@ export const schema = createSchema({
         prisma.month.findMany({
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
         }),
-      month: (_: unknown, { id }: { id: string }) =>
-        prisma.month.findUnique({ where: { id } }),
       monthByDate: (
         _: unknown,
         { year, month }: { year: number; month: number },
@@ -244,7 +362,15 @@ export const schema = createSchema({
         const settings = await ensureSettings()
         return { currency: settings.currency }
       },
-      krakenBalance: () => getKrakenCryptoBalance(),
+      krakenBalance: (
+        _: unknown,
+        { forceRefresh }: { forceRefresh?: boolean | null },
+      ) => getKrakenCryptoBalance({ forceRefresh: forceRefresh === true }),
+      templates: () =>
+        prisma.recurringTemplate.findMany({
+          orderBy: [{ direction: 'asc' }, { name: 'asc' }],
+        }),
+      goals: () => prisma.goal.findMany({ orderBy: { name: 'asc' } }),
     },
     Mutation: {
       createNextMonth: async () => {
@@ -255,10 +381,12 @@ export const schema = createSchema({
 
         if (!latest) {
           const now = new Date()
-          const year = now.getFullYear()
-          const month = now.getMonth() + 1
           return prisma.month.create({
-            data: { year, month, bankBalanceCents: 0 },
+            data: {
+              year: now.getFullYear(),
+              month: now.getMonth() + 1,
+              bankBalanceCents: 0,
+            },
           })
         }
 
@@ -270,22 +398,44 @@ export const schema = createSchema({
           throw new Error(`${monthLabel(next.year, next.month)} already exists`)
         }
 
+        if (latest.krakenSnapshottedAt == null) {
+          await snapshotKrakenOntoMonth(latest.id)
+        }
+
+        const templates = await prisma.recurringTemplate.findMany()
+        const sourceItems =
+          templates.length > 0
+            ? templates.map((t) => ({
+                name: t.name,
+                amountCents: t.amountCents,
+                direction: t.direction,
+                category: t.category,
+                billingDay: t.billingDay,
+                notes: t.notes,
+                active: t.active,
+                paid: false,
+                oneOff: false,
+              }))
+            : latest.items
+                .filter((item) => !item.oneOff)
+                .map((item) => ({
+                  name: item.name,
+                  amountCents: item.amountCents,
+                  direction: item.direction,
+                  category: item.category,
+                  billingDay: item.billingDay,
+                  notes: item.notes,
+                  active: item.active,
+                  paid: false,
+                  oneOff: false,
+                }))
+
         return prisma.month.create({
           data: {
             year: next.year,
             month: next.month,
             bankBalanceCents: latest.bankBalanceCents,
-            items: {
-              create: latest.items.map((item) => ({
-                name: item.name,
-                amountCents: item.amountCents,
-                direction: item.direction,
-                category: item.category,
-                billingDay: item.billingDay,
-                notes: item.notes,
-                active: item.active,
-              })),
-            },
+            items: { create: sourceItems },
           },
         })
       },
@@ -330,6 +480,19 @@ export const schema = createSchema({
           throw new Error('Item not found')
         }
       },
+      setItemPaid: async (
+        _: unknown,
+        { id, paid }: { id: string; paid: boolean },
+      ) => {
+        try {
+          return await prisma.recurringItem.update({
+            where: { id },
+            data: { paid },
+          })
+        } catch {
+          throw new Error('Item not found')
+        }
+      },
       setCurrency: async (_: unknown, { currency }: { currency: string }) => {
         const code = validateCurrency(currency)
         const settings = await prisma.settings.upsert({
@@ -351,6 +514,60 @@ export const schema = createSchema({
           })
         } catch {
           throw new Error('Month not found')
+        }
+      },
+      snapshotMonthKraken: async (
+        _: unknown,
+        { monthId }: { monthId: string },
+      ) => {
+        const month = await prisma.month.findUnique({ where: { id: monthId } })
+        if (!month) throw new Error('Month not found')
+        return snapshotKrakenOntoMonth(monthId)
+      },
+      createTemplate: (_: unknown, { input }: { input: TemplateInput }) => {
+        const data = validateTemplateInput(input)
+        return prisma.recurringTemplate.create({ data })
+      },
+      updateTemplate: async (
+        _: unknown,
+        { id, input }: { id: string; input: TemplateInput },
+      ) => {
+        const data = validateTemplateInput(input)
+        try {
+          return await prisma.recurringTemplate.update({ where: { id }, data })
+        } catch {
+          throw new Error('Template not found')
+        }
+      },
+      deleteTemplate: async (_: unknown, { id }: { id: string }) => {
+        try {
+          await prisma.recurringTemplate.delete({ where: { id } })
+          return true
+        } catch {
+          throw new Error('Template not found')
+        }
+      },
+      createGoal: (_: unknown, { input }: { input: GoalInput }) => {
+        const data = validateGoalInput(input)
+        return prisma.goal.create({ data })
+      },
+      updateGoal: async (
+        _: unknown,
+        { id, input }: { id: string; input: GoalInput },
+      ) => {
+        const data = validateGoalInput(input)
+        try {
+          return await prisma.goal.update({ where: { id }, data })
+        } catch {
+          throw new Error('Goal not found')
+        }
+      },
+      deleteGoal: async (_: unknown, { id }: { id: string }) => {
+        try {
+          await prisma.goal.delete({ where: { id } })
+          return true
+        } catch {
+          throw new Error('Goal not found')
         }
       },
     },

@@ -17,6 +17,25 @@ export type RecurringItem = {
   billingDay: number | null
   notes: string | null
   active: boolean
+  paid: boolean
+  oneOff: boolean
+}
+
+export type RecurringTemplate = {
+  id: string
+  name: string
+  amountCents: number
+  direction: Direction
+  category: Category
+  billingDay: number | null
+  notes: string | null
+  active: boolean
+}
+
+export type Goal = {
+  id: string
+  name: string
+  targetCents: number
 }
 
 export type MonthlySummary = {
@@ -31,6 +50,10 @@ export type Month = {
   month: number
   label: string
   bankBalanceCents: number
+  krakenBalanceCents: number | null
+  krakenEarnCents: number | null
+  krakenSpotCents: number | null
+  krakenSnapshottedAt: string | null
   items: RecurringItem[]
   summary: MonthlySummary
 }
@@ -41,6 +64,7 @@ export type MonthListItem = {
   month: number
   label: string
   bankBalanceCents: number
+  krakenBalanceCents: number | null
   summary: MonthlySummary
 }
 
@@ -56,6 +80,7 @@ export type KrakenBalance = {
   configured: boolean
   error: string | null
   updatedAt: string
+  cached: boolean
 }
 
 export type ItemInput = {
@@ -66,6 +91,23 @@ export type ItemInput = {
   billingDay?: number | null
   notes?: string | null
   active?: boolean
+  paid?: boolean
+  oneOff?: boolean
+}
+
+export type TemplateInput = {
+  name: string
+  amountCents: number
+  direction: Direction
+  category: Category
+  billingDay?: number | null
+  notes?: string | null
+  active?: boolean
+}
+
+export type GoalInput = {
+  name: string
+  targetCents: number
 }
 
 export function formatBillingDay(day: number | null | undefined): string | null {
@@ -95,8 +137,24 @@ export const EXPENSE_CATEGORIES: Category[] = [
 
 export const INCOME_CATEGORIES: Category[] = ['GOVERNMENT', 'OTHER']
 
+export function categoriesForDirection(direction: Direction): Category[] {
+  return direction === 'INCOME' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
+}
+
 export function defaultDirectionForCategory(category: Category): Direction {
   if (category === 'GOVERNMENT') return 'INCOME'
   if (category === 'OTHER') return 'EXPENSE'
   return 'EXPENSE'
+}
+
+export function categoryOrderForItems(
+  items: { category: Category }[],
+  preferred: Category[],
+): Category[] {
+  const present = new Set(items.map((item) => item.category))
+  const ordered = preferred.filter((category) => present.has(category))
+  for (const category of present) {
+    if (!ordered.includes(category)) ordered.push(category)
+  }
+  return ordered
 }

@@ -18,7 +18,9 @@ npm run dev
 - App: http://localhost:5173 — home lists months; open one for that month’s summary
 - GraphiQL: http://localhost:4000/graphql
 
-**Add next month** copies recurring items (and bank savings) from the latest month. Disable any item that does not apply that month — disabled items stay out of the totals.
+**Add next month** copies from **templates** when any exist; otherwise copies non-one-off items + bank from the latest month, and snapshots Kraken onto the month you leave behind.
+
+Month page includes: net worth / projected totals, weekly runway, billing calendar (mark paid), goals, recurring + one-off items.
 
 ## Kraken
 
@@ -29,6 +31,6 @@ KRAKEN_API_KEY="..."
 KRAKEN_API_SECRET="..."
 ```
 
-The app calls Kraken’s Balance + Earn Allocations APIs on the server. Earn/staked value uses Kraken’s EUR conversion; remaining spot balances are priced with public tickers. The UI shows total = earn + spot. Restart `npm run dev` after changing `.env`.
+Live Kraken is EUR. Combined totals include Kraken only when Settings currency is EUR. Restart `npm run dev` after changing `.env`.
 
 Use GraphiQL to try the same queries and mutations the UI uses while learning GraphQL.

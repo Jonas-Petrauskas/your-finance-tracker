@@ -1,6 +1,7 @@
 import { formatMoney } from '../lib/format'
 import {
   CATEGORY_LABELS,
+  categoryOrderForItems,
   formatBillingDay,
   type Category,
   type RecurringItem,
@@ -25,27 +26,34 @@ export function ItemList({
   onDelete,
   onToggleActive,
 }: Props) {
-  const grouped = categoryOrder
+  const ordered = categoryOrderForItems(items, categoryOrder)
+  const grouped = ordered
     .map((category) => ({
       category,
       items: items.filter((item) => item.category === category),
     }))
     .filter((group) => group.items.length > 0)
 
-  if (items.length === 0) {
-    return null
-  }
+  if (items.length === 0) return null
+
+  const isExpense = items[0]?.direction === 'EXPENSE'
 
   return (
     <section className="text-left">
-      <h2 className="mb-3 text-lg font-semibold text-(--ink)">{title}</h2>
+      <h2
+        className={`mb-3 text-lg font-bold ${
+          isExpense ? 'text-(--expense)' : 'text-(--income)'
+        }`}
+      >
+        {title}
+      </h2>
       <div className="grid gap-4">
         {grouped.map((group) => (
           <div key={group.category}>
-            <h3 className="mb-2 text-sm font-medium uppercase tracking-wide text-(--muted)">
-              {CATEGORY_LABELS[group.category]}
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-(--muted)">
+              {CATEGORY_LABELS[group.category] ?? group.category}
             </h3>
-            <ul className="overflow-hidden rounded-xl border border-(--line) bg-(--panel)">
+            <ul className="surface-card overflow-hidden">
               {group.items.map((item) => (
                 <li
                   key={item.id}
@@ -54,7 +62,14 @@ export function ItemList({
                   }`}
                 >
                   <div>
-                    <p className="font-medium text-(--ink)">{item.name}</p>
+                    <p className="font-medium text-(--ink)">
+                      {item.name}
+                      {item.oneOff ? (
+                        <span className="ml-2 rounded bg-(--warn-soft) px-1.5 py-0.5 text-xs font-medium text-amber-900">
+                          one-off
+                        </span>
+                      ) : null}
+                    </p>
                     {item.billingDay != null ? (
                       <p className="text-sm text-(--muted)">
                         Charged on the {formatBillingDay(item.billingDay)}
@@ -68,28 +83,35 @@ export function ItemList({
                         Disabled for this month
                       </p>
                     ) : null}
+                    {item.paid ? (
+                      <p className="text-xs text-(--muted)">Marked paid</p>
+                    ) : null}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                    <span className="font-semibold tabular-nums">
+                    <span
+                      className={`font-bold tabular-nums ${
+                        isExpense ? 'text-(--expense)' : 'text-(--income)'
+                      }`}
+                    >
                       {formatMoney(item.amountCents, currency)}
                     </span>
                     <button
                       type="button"
-                      className="rounded-md border border-(--line) px-2 py-1 text-xs"
+                      className="rounded-md border border-(--line) bg-white px-2 py-1 text-xs"
                       onClick={() => onToggleActive(item)}
                     >
                       {item.active ? 'Disable' : 'Enable'}
                     </button>
                     <button
                       type="button"
-                      className="rounded-md border border-(--line) px-2 py-1 text-xs"
+                      className="rounded-md border border-(--line) bg-white px-2 py-1 text-xs"
                       onClick={() => onEdit(item)}
                     >
                       Edit
                     </button>
                     <button
                       type="button"
-                      className="rounded-md border border-(--line) px-2 py-1 text-xs text-(--expense)"
+                      className="rounded-md border border-(--expense-border) bg-(--expense-soft) px-2 py-1 text-xs text-(--expense)"
                       onClick={() => onDelete(item)}
                     >
                       Delete

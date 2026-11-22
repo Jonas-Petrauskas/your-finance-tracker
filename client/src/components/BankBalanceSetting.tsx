@@ -1,21 +1,13 @@
 import { useMutation } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { GET_MONTH, SET_MONTH_BANK_BALANCE } from '../graphql/operations'
-import { centsToInput } from '../lib/format'
+import { balanceToCents, centsToInput } from '../lib/format'
 
 type Props = {
   monthId: string
   bankBalanceCents: number
   year: number
   month: number
-}
-
-function balanceToCents(value: string): number | null {
-  const normalized = value.trim().replace(',', '.')
-  if (!normalized) return null
-  const parsed = Number(normalized)
-  if (!Number.isFinite(parsed) || parsed < 0) return null
-  return Math.round(parsed * 100)
 }
 
 export function BankBalanceSetting({
@@ -65,7 +57,7 @@ export function BankBalanceSetting({
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-(--accent) px-3 py-1.5 text-sm text-white disabled:opacity-50"
+          className="btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
         >
           Save
         </button>

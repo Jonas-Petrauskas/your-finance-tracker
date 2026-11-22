@@ -22,13 +22,17 @@ enum Category {
 }
 
 model Month {
-  id               String          @id @default(cuid())
-  year             Int
-  month            Int
-  bankBalanceCents Int             @default(0)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  items            RecurringItem[]
+  id                  String          @id @default(cuid())
+  year                Int
+  month               Int
+  bankBalanceCents    Int             @default(0)
+  krakenBalanceCents  Int?
+  krakenEarnCents     Int?
+  krakenSpotCents     Int?
+  krakenSnapshottedAt DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  items               RecurringItem[]
 
   @@unique([year, month])
 }
@@ -44,10 +48,33 @@ model RecurringItem {
   billingDay  Int?
   notes       String?
   active      Boolean   @default(true)
+  paid        Boolean   @default(false)
+  oneOff      Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([monthId])
+}
+
+model RecurringTemplate {
+  id          String    @id @default(cuid())
+  name        String
+  amountCents Int
+  direction   Direction
+  category    Category
+  billingDay  Int?
+  notes       String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  name        String
+  targetCents Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Settings {

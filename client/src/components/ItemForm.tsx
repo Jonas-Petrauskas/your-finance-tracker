@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { centsToInput, eurosToCents } from '../lib/format'
+import { amountToCents, centsToInput } from '../lib/format'
 import {
   CATEGORY_LABELS,
+  categoriesForDirection,
   defaultDirectionForCategory,
   type Category,
   type Direction,
@@ -16,43 +17,52 @@ type Props = {
   submitting?: boolean
 }
 
-const ALL_CATEGORIES = Object.keys(CATEGORY_LABELS) as Category[]
-
 export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
   const [name, setName] = useState(initial?.name ?? '')
   const [amount, setAmount] = useState(
     initial ? centsToInput(initial.amountCents) : '',
   )
-  const [category, setCategory] = useState<Category>(
-    initial?.category ?? 'SUBSCRIPTION',
-  )
   const [direction, setDirection] = useState<Direction>(
     initial?.direction ?? 'EXPENSE',
+  )
+  const [category, setCategory] = useState<Category>(
+    initial?.category ?? 'SUBSCRIPTION',
   )
   const [billingDay, setBillingDay] = useState(
     initial?.billingDay != null ? String(initial.billingDay) : '',
   )
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [active, setActive] = useState(initial?.active ?? true)
+  const [oneOff, setOneOff] = useState(initial?.oneOff ?? false)
   const [error, setError] = useState<string | null>(null)
+
+  const categoryOptions = categoriesForDirection(direction)
 
   useEffect(() => {
     setName(initial?.name ?? '')
     setAmount(initial ? centsToInput(initial.amountCents) : '')
-    setCategory(initial?.category ?? 'SUBSCRIPTION')
     setDirection(initial?.direction ?? 'EXPENSE')
+    setCategory(initial?.category ?? 'SUBSCRIPTION')
     setBillingDay(initial?.billingDay != null ? String(initial.billingDay) : '')
     setNotes(initial?.notes ?? '')
     setActive(initial?.active ?? true)
+    setOneOff(initial?.oneOff ?? false)
     setError(null)
   }, [initial])
 
+  useEffect(() => {
+    const allowed = categoriesForDirection(direction)
+    if (!allowed.includes(category)) {
+      setCategory(allowed[0]!)
+    }
+  }, [direction, category])
+
   return (
     <form
-      className="grid gap-3 rounded-xl border border-(--line) bg-(--panel) p-4 text-left"
+      className="surface-card grid gap-3 p-4 text-left"
       onSubmit={(event) => {
         event.preventDefault()
-        const amountCents = eurosToCents(amount)
+        const amountCents = amountToCents(amount)
         if (!name.trim()) {
           setError('Name is required')
           return
@@ -82,6 +92,17 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           billingDay: parsedBillingDay,
           notes: notes.trim() || null,
           active,
+          paid: initial?.paid ?? false,
+          oneOff,
+        }).then(() => {
+          if (!initial) {
+            setName('')
+            setAmount('')
+            setBillingDay('')
+            setNotes('')
+            setActive(true)
+            setOneOff(false)
+          }
         })
       }}
     >
@@ -106,14 +127,14 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           className="rounded-md border border-(--line) px-3 py-2"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Rent, Netflix, child benefit…"
+          placeholder="Rent, Netflix, groceries…"
           required
         />
       </label>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1 text-sm">
-          <span className="text-(--muted)">Amount (monthly)</span>
+          <span className="text-(--muted)">Amount</span>
           <input
             className="rounded-md border border-(--line) px-3 py-2"
             inputMode="decimal"
@@ -132,12 +153,10 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
             onChange={(event) => {
               const next = event.target.value as Category
               setCategory(next)
-              if (!initial) {
-                setDirection(defaultDirectionForCategory(next))
-              }
+              if (!initial) setDirection(defaultDirectionForCategory(next))
             }}
           >
-            {ALL_CATEGORIES.map((key) => (
+            {categoryOptions.map((key) => (
               <option key={key} value={key}>
                 {CATEGORY_LABELS[key]}
               </option>
@@ -154,7 +173,12 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
               type="radio"
               name="direction"
               checked={direction === 'EXPENSE'}
-              onChange={() => setDirection('EXPENSE')}
+              onChange={() => {
+                setDirection('EXPENSE')
+                if (!categoriesForDirection('EXPENSE').includes(category)) {
+                  setCategory('SUBSCRIPTION')
+                }
+              }}
             />
             Expense
           </label>
@@ -163,7 +187,12 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
               type="radio"
               name="direction"
               checked={direction === 'INCOME'}
-              onChange={() => setDirection('INCOME')}
+              onChange={() => {
+                setDirection('INCOME')
+                if (!categoriesForDirection('INCOME').includes(category)) {
+                  setCategory('GOVERNMENT')
+                }
+              }}
             />
             Income
           </label>
@@ -171,17 +200,13 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
       </fieldset>
 
       <label className="grid gap-1 text-sm">
-        <span className="text-(--muted)">
-          Billing day (optional, 1–31)
-        </span>
+        <span className="text-(--muted)">Billing day (optional, 1–31)</span>
         <input
           className="rounded-md border border-(--line) px-3 py-2"
           inputMode="numeric"
           value={billingDay}
           onChange={(event) => setBillingDay(event.target.value)}
           placeholder="e.g. 1 for rent, 15 for Netflix"
-          min={1}
-          max={31}
         />
       </label>
 
@@ -203,12 +228,21 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
         Active (counts toward monthly totals)
       </label>
 
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={oneOff}
+          onChange={(event) => setOneOff(event.target.checked)}
+        />
+        One-off (does not copy to next month)
+      </label>
+
       {error ? <p className="text-sm text-(--expense)">{error}</p> : null}
 
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-(--accent) px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
       >
         {initial ? 'Save changes' : 'Add item'}
       </button>

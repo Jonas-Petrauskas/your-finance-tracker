@@ -46,7 +46,12 @@ export type KrakenCryptoBalance = {
   configured: boolean
   error: string | null
   updatedAt: string
+  cached: boolean
 }
+
+const CACHE_TTL_MS = 60_000
+let cachedBalance: KrakenCryptoBalance | null = null
+let cachedAt = 0
 
 type EarnAmount = {
   native?: string
@@ -404,7 +409,21 @@ async function fetchKrakenTotals(credentials: {
   }
 }
 
-export async function getKrakenCryptoBalance(): Promise<KrakenCryptoBalance> {
+export async function getKrakenCryptoBalance(
+  options: { forceRefresh?: boolean } = {},
+): Promise<KrakenCryptoBalance> {
+  const forceRefresh = options.forceRefresh === true
+  const now = Date.now()
+
+  if (
+    !forceRefresh &&
+    cachedBalance &&
+    !cachedBalance.error &&
+    now - cachedAt < CACHE_TTL_MS
+  ) {
+    return { ...cachedBalance, cached: true }
+  }
+
   const updatedAt = new Date().toISOString()
   const credentials = getCredentials()
 
@@ -417,12 +436,13 @@ export async function getKrakenCryptoBalance(): Promise<KrakenCryptoBalance> {
       configured: false,
       error: 'Kraken API keys are not configured on the server',
       updatedAt,
+      cached: false,
     }
   }
 
   try {
     const { totalEur, earnEur, spotEur } = await fetchKrakenTotals(credentials)
-    return {
+    const result: KrakenCryptoBalance = {
       balanceCents: Math.round(totalEur * 100),
       earnCents: Math.round(earnEur * 100),
       spotCents: Math.round(spotEur * 100),
@@ -430,7 +450,11 @@ export async function getKrakenCryptoBalance(): Promise<KrakenCryptoBalance> {
       configured: true,
       error: null,
       updatedAt,
+      cached: false,
     }
+    cachedBalance = result
+    cachedAt = now
+    return result
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to fetch Kraken balance'
@@ -442,6 +466,7 @@ export async function getKrakenCryptoBalance(): Promise<KrakenCryptoBalance> {
       configured: true,
       error: message,
       updatedAt,
+      cached: false,
     }
   }
 }

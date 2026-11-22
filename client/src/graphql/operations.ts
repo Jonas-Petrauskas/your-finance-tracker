@@ -10,6 +10,19 @@ const ITEM_FIELDS = `
   billingDay
   notes
   active
+  paid
+  oneOff
+`
+
+const TEMPLATE_FIELDS = `
+  id
+  name
+  amountCents
+  direction
+  category
+  billingDay
+  notes
+  active
 `
 
 const MONTH_SUMMARY_FIELDS = `
@@ -24,6 +37,7 @@ const MONTH_LIST_FIELDS = `
   month
   label
   bankBalanceCents
+  krakenBalanceCents
   summary {
     ${MONTH_SUMMARY_FIELDS}
   }
@@ -37,6 +51,7 @@ const KRAKEN_BALANCE_FIELDS = `
   configured
   error
   updatedAt
+  cached
 `
 
 export const GET_HOME = gql`
@@ -46,6 +61,17 @@ export const GET_HOME = gql`
     }
     settings {
       currency
+    }
+    goals {
+      id
+      name
+      targetCents
+    }
+    templates {
+      ${TEMPLATE_FIELDS}
+    }
+    krakenBalance {
+      ${KRAKEN_BALANCE_FIELDS}
     }
   }
 `
@@ -58,6 +84,10 @@ export const GET_MONTH = gql`
       month
       label
       bankBalanceCents
+      krakenBalanceCents
+      krakenEarnCents
+      krakenSpotCents
+      krakenSnapshottedAt
       items {
         ${ITEM_FIELDS}
       }
@@ -68,12 +98,17 @@ export const GET_MONTH = gql`
     settings {
       currency
     }
+    goals {
+      id
+      name
+      targetCents
+    }
   }
 `
 
 export const GET_KRAKEN_BALANCE = gql`
-  query GetKrakenBalance {
-    krakenBalance {
+  query GetKrakenBalance($forceRefresh: Boolean) {
+    krakenBalance(forceRefresh: $forceRefresh) {
       ${KRAKEN_BALANCE_FIELDS}
     }
   }
@@ -115,6 +150,14 @@ export const DELETE_ITEM = gql`
   }
 `
 
+export const SET_ITEM_PAID = gql`
+  mutation SetItemPaid($id: ID!, $paid: Boolean!) {
+    setItemPaid(id: $id, paid: $paid) {
+      ${ITEM_FIELDS}
+    }
+  }
+`
+
 export const SET_CURRENCY = gql`
   mutation SetCurrency($currency: String!) {
     setCurrency(currency: $currency) {
@@ -129,5 +172,53 @@ export const SET_MONTH_BANK_BALANCE = gql`
       id
       bankBalanceCents
     }
+  }
+`
+
+export const CREATE_TEMPLATE = gql`
+  mutation CreateTemplate($input: TemplateInput!) {
+    createTemplate(input: $input) {
+      ${TEMPLATE_FIELDS}
+    }
+  }
+`
+
+export const UPDATE_TEMPLATE = gql`
+  mutation UpdateTemplate($id: ID!, $input: TemplateInput!) {
+    updateTemplate(id: $id, input: $input) {
+      ${TEMPLATE_FIELDS}
+    }
+  }
+`
+
+export const DELETE_TEMPLATE = gql`
+  mutation DeleteTemplate($id: ID!) {
+    deleteTemplate(id: $id)
+  }
+`
+
+export const CREATE_GOAL = gql`
+  mutation CreateGoal($input: GoalInput!) {
+    createGoal(input: $input) {
+      id
+      name
+      targetCents
+    }
+  }
+`
+
+export const UPDATE_GOAL = gql`
+  mutation UpdateGoal($id: ID!, $input: GoalInput!) {
+    updateGoal(id: $id, input: $input) {
+      id
+      name
+      targetCents
+    }
+  }
+`
+
+export const DELETE_GOAL = gql`
+  mutation DeleteGoal($id: ID!) {
+    deleteGoal(id: $id)
   }
 `

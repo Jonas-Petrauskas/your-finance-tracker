@@ -1,11 +1,13 @@
 import { useMutation, useQuery } from '@apollo/client'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { MonthCompare } from '../components/MonthCompare'
 import {
   CREATE_NEXT_MONTH,
   DELETE_MONTH,
   GET_HOME,
 } from '../graphql/operations'
-import { formatMoney } from '../lib/format'
+import { formatMoney, graphqlErrorMessage } from '../lib/format'
 import type { MonthListItem } from '../lib/types'
 
 type HomeData = {
@@ -34,9 +36,11 @@ function TrashIcon() {
 export function HomePage() {
   const navigate = useNavigate()
   const { data, loading, error } = useQuery<HomeData>(GET_HOME)
-  const [createNextMonth, { loading: creating }] = useMutation(CREATE_NEXT_MONTH, {
-    refetchQueries: [{ query: GET_HOME }],
-  })
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [createNextMonth, { loading: creating }] = useMutation(
+    CREATE_NEXT_MONTH,
+    { refetchQueries: [{ query: GET_HOME }] },
+  )
   const [deleteMonth] = useMutation(DELETE_MONTH, {
     refetchQueries: [{ query: GET_HOME }],
   })
@@ -45,10 +49,13 @@ export function HomePage() {
   const months = data?.months ?? []
 
   async function handleAddNextMonth() {
-    const result = await createNextMonth()
-    const created = result.data?.createNextMonth as MonthListItem | undefined
-    if (created) {
-      navigate(`/months/${created.year}/${created.month}`)
+    try {
+      setActionError(null)
+      const result = await createNextMonth()
+      const created = result.data?.createNextMonth as MonthListItem | undefined
+      if (created) navigate(`/months/${created.year}/${created.month}`)
+    } catch (err) {
+      setActionError(graphqlErrorMessage(err, 'Could not create next month'))
     }
   }
 
@@ -60,7 +67,12 @@ export function HomePage() {
     ) {
       return
     }
-    await deleteMonth({ variables: { id: month.id } })
+    try {
+      setActionError(null)
+      await deleteMonth({ variables: { id: month.id } })
+    } catch (err) {
+      setActionError(graphqlErrorMessage(err, 'Could not delete month'))
+    }
   }
 
   return (
@@ -74,27 +86,35 @@ export function HomePage() {
             Monthly spending
           </h1>
           <p className="mt-2 max-w-xl text-(--muted)">
-            Open a month to review income, expenses, and bank savings. Add the
-            next month when you are ready — recurring items copy over, and you
-            can disable anything you no longer need.
+            Open a month for runway, bills, and totals. Templates and goals live
+            in Setup.
           </p>
+          <Link
+            to="/setup"
+            className="mt-3 inline-block text-sm text-(--accent) underline-offset-2 hover:underline"
+          >
+            Setup →
+          </Link>
         </div>
         <button
           type="button"
           disabled={creating}
           onClick={() => void handleAddNextMonth()}
-          className="rounded-md bg-(--accent) px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
         >
           {creating ? 'Adding…' : 'Add next month'}
         </button>
       </header>
 
-      {loading && !data ? (
-        <p className="text-(--muted)">Loading…</p>
-      ) : null}
+      {loading && !data ? <p className="text-(--muted)">Loading…</p> : null}
       {error ? (
         <p className="rounded-md border border-(--expense) bg-white px-3 py-2 text-(--expense)">
           Could not reach GraphQL. Is the server running on port 4000?
+        </p>
+      ) : null}
+      {actionError ? (
+        <p className="rounded-md border border-(--expense) bg-white px-3 py-2 text-(--expense)">
+          {actionError}
         </p>
       ) : null}
 
@@ -111,7 +131,7 @@ export function HomePage() {
             return (
               <li
                 key={month.id}
-                className="flex items-stretch gap-2 rounded-xl border border-(--line) bg-(--panel) transition hover:border-(--accent)"
+                className="month-row flex items-stretch gap-2 rounded-xl border border-(--line) shadow-sm transition hover:border-(--accent)"
               >
                 <Link
                   to={`/months/${month.year}/${month.month}`}
@@ -161,6 +181,8 @@ export function HomePage() {
           })}
         </ul>
       ) : null}
+
+      {data ? <MonthCompare months={months} currency={currency} /> : null}
     </div>
   )
 }
