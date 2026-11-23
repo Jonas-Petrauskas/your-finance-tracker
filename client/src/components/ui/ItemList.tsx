@@ -1,11 +1,12 @@
-import { formatMoney } from '../lib/format'
+import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../lib/format'
 import {
-  CATEGORY_LABELS,
+  categoryLabel,
   categoryOrderForItems,
   formatBillingDay,
   type Category,
   type RecurringItem,
-} from '../lib/types'
+} from '../../lib/types'
 
 type Props = {
   title: string
@@ -26,6 +27,7 @@ export function ItemList({
   onDelete,
   onToggleActive,
 }: Props) {
+  const { t } = useTranslation()
   const ordered = categoryOrderForItems(items, categoryOrder)
   const grouped = ordered
     .map((category) => ({
@@ -51,7 +53,7 @@ export function ItemList({
         {grouped.map((group) => (
           <div key={group.category}>
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-(--muted)">
-              {CATEGORY_LABELS[group.category] ?? group.category}
+              {categoryLabel(group.category)}
             </h3>
             <ul className="surface-card overflow-hidden">
               {group.items.map((item) => (
@@ -66,13 +68,15 @@ export function ItemList({
                       {item.name}
                       {item.oneOff ? (
                         <span className="ml-2 rounded bg-(--warn-soft) px-1.5 py-0.5 text-xs font-medium text-amber-900">
-                          one-off
+                          {t('month.itemList.oneOff')}
                         </span>
                       ) : null}
                     </p>
                     {item.billingDay != null ? (
                       <p className="text-sm text-(--muted)">
-                        Charged on the {formatBillingDay(item.billingDay)}
+                        {t('month.itemList.chargedOn', {
+                          day: formatBillingDay(item.billingDay),
+                        })}
                       </p>
                     ) : null}
                     {item.notes ? (
@@ -80,11 +84,13 @@ export function ItemList({
                     ) : null}
                     {!item.active ? (
                       <p className="text-xs text-(--muted)">
-                        Disabled for this month
+                        {t('month.itemList.disabled')}
                       </p>
                     ) : null}
                     {item.paid ? (
-                      <p className="text-xs text-(--muted)">Marked paid</p>
+                      <p className="text-xs text-(--muted)">
+                        {t('month.itemList.markedPaid')}
+                      </p>
                     ) : null}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
@@ -100,21 +106,21 @@ export function ItemList({
                       className="rounded-md border border-(--line) bg-white px-2 py-1 text-xs"
                       onClick={() => onToggleActive(item)}
                     >
-                      {item.active ? 'Disable' : 'Enable'}
+                      {item.active ? t('common.disable') : t('common.enable')}
                     </button>
                     <button
                       type="button"
                       className="rounded-md border border-(--line) bg-white px-2 py-1 text-xs"
                       onClick={() => onEdit(item)}
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
                       className="rounded-md border border-(--expense-border) bg-(--expense-soft) px-2 py-1 text-xs text-(--expense)"
                       onClick={() => onDelete(item)}
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </li>

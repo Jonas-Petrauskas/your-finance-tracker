@@ -1,6 +1,7 @@
-import { formatMoney } from '../lib/format'
-import { computeRunway } from '../lib/runway'
-import type { RecurringItem } from '../lib/types'
+import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../lib/format'
+import { computeRunway } from '../../lib/runway'
+import type { RecurringItem } from '../../lib/types'
 
 type Props = {
   year: number
@@ -17,20 +18,20 @@ export function WeeklyRunway({
   items,
   currency,
 }: Props) {
+  const { t } = useTranslation()
   const runway = computeRunway(year, month, leftCents, items)
   const leftNegative = leftCents < 0
 
   return (
     <section className="surface-card px-4 py-4 text-left">
-      <h2 className="text-lg font-bold text-(--ink)">Weekly runway</h2>
+      <h2 className="text-lg font-bold text-(--ink)">{t('month.runway.title')}</h2>
       <p className="mt-1 text-sm text-(--muted)">
-        Based on what’s left this month and {runway.daysRemaining} day
-        {runway.daysRemaining === 1 ? '' : 's'} remaining.
+        {t('month.runway.intro', { count: runway.daysRemaining })}
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className={`tile ${leftNegative ? 'tile-left-neg' : 'tile-left'}`}>
           <p className="text-xs font-semibold uppercase tracking-wide text-(--muted)">
-            Per day
+            {t('month.runway.perDay')}
           </p>
           <p
             className="mt-1 text-xl font-bold"
@@ -41,7 +42,7 @@ export function WeeklyRunway({
         </div>
         <div className={`tile ${leftNegative ? 'tile-left-neg' : 'tile-left'}`}>
           <p className="text-xs font-semibold uppercase tracking-wide text-(--muted)">
-            Per week
+            {t('month.runway.perWeek')}
           </p>
           <p
             className="mt-1 text-xl font-bold"
@@ -52,7 +53,7 @@ export function WeeklyRunway({
         </div>
         <div className="tile tile-expense">
           <p className="text-xs font-semibold uppercase tracking-wide text-(--muted)">
-            Unpaid expenses
+            {t('month.runway.unpaidExpenses')}
           </p>
           <p className="mt-1 text-xl font-bold text-(--expense)">
             {formatMoney(runway.unpaidExpenseCents, currency)}

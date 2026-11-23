@@ -1,5 +1,11 @@
-import { formatMoney } from '../lib/format'
-import type { KrakenBalance, MonthlySummary } from '../lib/types'
+import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../lib/format'
+import type { KrakenBalance, MonthlySummary } from '../../lib/types'
+import {
+  computeNetWorthCents,
+  computeProjectedCents,
+  includeKrakenInWealth,
+} from '../../lib/wealth'
 import { KrakenBalanceCard } from './KrakenBalanceCard'
 
 export type SummaryVariant = 'cashflow' | 'wealth'
@@ -27,23 +33,34 @@ export function SummaryStrip({
   onRefreshKraken,
   refreshingKraken = false,
 }: Props) {
+  const { t } = useTranslation()
   const leftNegative = summary.leftCents < 0
-  const krakenOk =
-    Boolean(krakenBalance) && !krakenBalance?.error && !krakenLoading
-  const krakenCents = krakenOk ? (krakenBalance?.balanceCents ?? 0) : 0
+  const includeKraken = includeKrakenInWealth(krakenBalance, currency, {
+    loading: krakenLoading,
+  })
   const krakenCurrency = krakenBalance?.currency ?? 'EUR'
   const sameCurrency = currency === krakenCurrency
-  const includeKraken = sameCurrency && krakenOk
 
-  const netWorthCents = bankBalanceCents + (includeKraken ? krakenCents : 0)
-  const projectedCents = netWorthCents + summary.leftCents
+  const netWorthCents = computeNetWorthCents({
+    bankBalanceCents,
+    kraken: krakenBalance,
+    currency,
+    krakenLoading,
+  })
+  const projectedCents = computeProjectedCents({
+    bankBalanceCents,
+    leftCents: summary.leftCents,
+    kraken: krakenBalance,
+    currency,
+    krakenLoading,
+  })
 
   if (variant === 'cashflow') {
     return (
       <section className="grid gap-3 sm:grid-cols-3">
         <div className="tile tile-income">
           <p className="text-xs font-semibold uppercase tracking-wide text-(--income)">
-            Income
+            {t('common.income')}
           </p>
           <p className="mt-1 text-2xl font-bold text-(--income)">
             {formatMoney(summary.incomeCents, currency)}
@@ -51,7 +68,7 @@ export function SummaryStrip({
         </div>
         <div className="tile tile-expense">
           <p className="text-xs font-semibold uppercase tracking-wide text-(--expense)">
-            Expenses
+            {t('common.expenses')}
           </p>
           <p className="mt-1 text-2xl font-bold text-(--expense)">
             {formatMoney(summary.expenseCents, currency)}
@@ -66,7 +83,7 @@ export function SummaryStrip({
               color: leftNegative ? 'var(--left-neg)' : 'var(--left)',
             }}
           >
-            Left this month
+            {t('month.summary.leftThisMonth')}
           </p>
           <p
             className="mt-1 text-2xl font-bold"
@@ -76,7 +93,9 @@ export function SummaryStrip({
           >
             {formatMoney(summary.leftCents, currency)}
           </p>
-          <p className="mt-1 text-xs text-(--muted)">Cashflow plan</p>
+          <p className="mt-1 text-xs text-(--muted)">
+            {t('month.summary.cashflowPlan')}
+          </p>
         </div>
       </section>
     )
@@ -86,7 +105,7 @@ export function SummaryStrip({
     <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <div className="tile tile-bank">
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-          Bank savings
+          {t('common.bankSavings')}
         </p>
         <p className="mt-1 text-2xl font-bold text-(--ink)">
           {formatMoney(bankBalanceCents, currency)}
@@ -101,10 +120,10 @@ export function SummaryStrip({
       />
       <div className="tile tile-wealth">
         <p className="text-xs font-semibold uppercase tracking-wide text-teal-800">
-          Net worth now
+          {t('month.wealth.netWorthNow')}
         </p>
         {krakenLoading && !krakenBalance ? (
-          <p className="mt-1 text-sm text-(--muted)">Loading…</p>
+          <p className="mt-1 text-sm text-(--muted)">{t('common.loading')}</p>
         ) : (
           <>
             <p className="mt-1 text-2xl font-bold text-(--ink)">
@@ -112,20 +131,22 @@ export function SummaryStrip({
             </p>
             <p className="mt-1 text-xs text-(--muted)">
               {includeKraken
-                ? 'Bank + Kraken'
+                ? t('month.wealth.sourceBoth')
                 : sameCurrency
-                  ? 'Bank only (Kraken unavailable)'
-                  : `Bank only — Kraken is ${krakenCurrency}`}
+                  ? t('month.wealth.sourceBankUnavailable')
+                  : t('month.wealth.sourceBankWrongCurrency', {
+                      currency: krakenCurrency,
+                    })}
             </p>
           </>
         )}
       </div>
       <div className="tile tile-left sm:col-span-2 lg:col-span-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-(--left)">
-          Projected after month
+          {t('month.wealth.projectedAfterMonth')}
         </p>
         {krakenLoading && !krakenBalance ? (
-          <p className="mt-1 text-sm text-(--muted)">Loading…</p>
+          <p className="mt-1 text-sm text-(--muted)">{t('common.loading')}</p>
         ) : (
           <>
             <p className="mt-1 text-2xl font-bold text-(--left)">
@@ -133,8 +154,8 @@ export function SummaryStrip({
             </p>
             <p className="mt-1 text-xs text-(--muted)">
               {includeKraken
-                ? 'Bank + Kraken + left'
-                : 'Bank + left (Kraken excluded)'}
+                ? t('month.wealth.projectedBoth')
+                : t('month.wealth.projectedBankOnly')}
             </p>
           </>
         )}

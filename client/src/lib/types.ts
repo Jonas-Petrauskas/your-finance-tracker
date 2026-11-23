@@ -110,21 +110,32 @@ export type GoalInput = {
   targetCents: number
 }
 
-export function formatBillingDay(day: number | null | undefined): string | null {
-  if (day == null) return null
-  if (day === 1 || day === 21 || day === 31) return `${day}st`
-  if (day === 2 || day === 22) return `${day}nd`
-  if (day === 3 || day === 23) return `${day}rd`
-  return `${day}th`
+import i18n from '../i18n'
+
+function ordinalSuffix(day: number, locale: string): string {
+  try {
+    const plural = new Intl.PluralRules(locale, { type: 'ordinal' })
+    const suffixes: Record<string, string> = {
+      one: 'st',
+      two: 'nd',
+      few: 'rd',
+      other: 'th',
+    }
+    return suffixes[plural.select(day)] ?? 'th'
+  } catch {
+    return 'th'
+  }
 }
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  SUBSCRIPTION: 'Subscriptions',
-  RENT: 'Rent',
-  BILL: 'Bills',
-  BANK: 'Bank',
-  GOVERNMENT: 'Government',
-  OTHER: 'Other',
+export function formatBillingDay(day: number | null | undefined): string | null {
+  if (day == null) return null
+  return i18n.t('common.billingDayOrdinal', {
+    day: `${day}${ordinalSuffix(day, i18n.language)}`,
+  })
+}
+
+export function categoryLabel(category: Category): string {
+  return i18n.t(`common.category.${category}`)
 }
 
 export const EXPENSE_CATEGORIES: Category[] = [

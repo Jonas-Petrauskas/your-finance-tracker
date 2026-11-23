@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { amountToCents, centsToInput } from '../lib/format'
+import { useTranslation } from 'react-i18next'
+import { amountToCents, centsToInput } from '../../lib/format'
 import {
-  CATEGORY_LABELS,
   categoriesForDirection,
+  categoryLabel,
   defaultDirectionForCategory,
   type Category,
   type Direction,
   type ItemInput,
   type RecurringItem,
-} from '../lib/types'
+} from '../../lib/types'
 
 type Props = {
   initial?: RecurringItem | null
@@ -18,6 +19,7 @@ type Props = {
 }
 
 export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
+  const { t } = useTranslation()
   const [name, setName] = useState(initial?.name ?? '')
   const [amount, setAmount] = useState(
     initial ? centsToInput(initial.amountCents) : '',
@@ -64,11 +66,11 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
         event.preventDefault()
         const amountCents = amountToCents(amount)
         if (!name.trim()) {
-          setError('Name is required')
+          setError(t('errors.validation.nameRequired'))
           return
         }
         if (amountCents === null) {
-          setError('Enter a positive amount')
+          setError(t('errors.validation.positiveAmount'))
           return
         }
         let parsedBillingDay: number | null = null
@@ -79,7 +81,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
             parsedBillingDay < 1 ||
             parsedBillingDay > 31
           ) {
-            setError('Billing day must be between 1 and 31')
+            setError(t('errors.validation.billingDayRange'))
             return
           }
         }
@@ -108,7 +110,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-(--ink)">
-          {initial ? 'Edit item' : 'Add monthly item'}
+          {initial ? t('month.itemForm.editTitle') : t('month.itemForm.addTitle')}
         </h2>
         {onCancel ? (
           <button
@@ -116,37 +118,37 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
             onClick={onCancel}
             className="text-sm text-(--muted) underline"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         ) : null}
       </div>
 
       <label className="grid gap-1 text-sm">
-        <span className="text-(--muted)">Name</span>
+        <span className="text-(--muted)">{t('common.fields.name')}</span>
         <input
           className="rounded-md border border-(--line) px-3 py-2"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Rent, Netflix, groceries…"
+          placeholder={t('month.itemForm.namePlaceholder')}
           required
         />
       </label>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1 text-sm">
-          <span className="text-(--muted)">Amount</span>
+          <span className="text-(--muted)">{t('common.fields.amount')}</span>
           <input
             className="rounded-md border border-(--line) px-3 py-2"
             inputMode="decimal"
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
-            placeholder="120.00"
+            placeholder={t('month.itemForm.amountPlaceholder')}
             required
           />
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-(--muted)">Category</span>
+          <span className="text-(--muted)">{t('common.fields.category')}</span>
           <select
             className="rounded-md border border-(--line) px-3 py-2"
             value={category}
@@ -158,7 +160,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           >
             {categoryOptions.map((key) => (
               <option key={key} value={key}>
-                {CATEGORY_LABELS[key]}
+                {categoryLabel(key)}
               </option>
             ))}
           </select>
@@ -166,7 +168,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
       </div>
 
       <fieldset className="grid gap-2 text-sm">
-        <legend className="text-(--muted)">Direction</legend>
+        <legend className="text-(--muted)">{t('common.fields.direction')}</legend>
         <div className="flex gap-4">
           <label className="flex items-center gap-2">
             <input
@@ -180,7 +182,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
                 }
               }}
             />
-            Expense
+            {t('common.direction.expense')}
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -194,24 +196,26 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
                 }
               }}
             />
-            Income
+            {t('common.direction.income')}
           </label>
         </div>
       </fieldset>
 
       <label className="grid gap-1 text-sm">
-        <span className="text-(--muted)">Billing day (optional, 1–31)</span>
+        <span className="text-(--muted)">
+          {t('month.itemForm.billingDayLabel')}
+        </span>
         <input
           className="rounded-md border border-(--line) px-3 py-2"
           inputMode="numeric"
           value={billingDay}
           onChange={(event) => setBillingDay(event.target.value)}
-          placeholder="e.g. 1 for rent, 15 for Netflix"
+          placeholder={t('month.itemForm.billingDayPlaceholder')}
         />
       </label>
 
       <label className="grid gap-1 text-sm">
-        <span className="text-(--muted)">Notes (optional)</span>
+        <span className="text-(--muted)">{t('month.itemForm.notesLabel')}</span>
         <textarea
           className="min-h-16 rounded-md border border-(--line) px-3 py-2"
           value={notes}
@@ -225,7 +229,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           checked={active}
           onChange={(event) => setActive(event.target.checked)}
         />
-        Active (counts toward monthly totals)
+        {t('month.itemForm.activeHelp')}
       </label>
 
       <label className="flex items-center gap-2 text-sm">
@@ -234,7 +238,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           checked={oneOff}
           onChange={(event) => setOneOff(event.target.checked)}
         />
-        One-off (does not copy to next month)
+        {t('month.itemForm.oneOffHelp')}
       </label>
 
       {error ? <p className="text-sm text-(--expense)">{error}</p> : null}
@@ -244,7 +248,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
         disabled={submitting}
         className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
       >
-        {initial ? 'Save changes' : 'Add item'}
+        {initial ? t('common.saveChanges') : t('month.itemForm.submitAdd')}
       </button>
     </form>
   )

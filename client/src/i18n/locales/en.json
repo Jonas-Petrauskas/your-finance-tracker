@@ -1,0 +1,197 @@
+{
+  "app": {
+    "title": "Monthly spending"
+  },
+  "common": {
+    "loading": "Loading…",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "enable": "Enable",
+    "disable": "Disable",
+    "backToHome": "← All months",
+    "income": "Income",
+    "expenses": "Expenses",
+    "bankSavings": "Bank savings",
+    "today": "today",
+    "fields": {
+      "name": "Name",
+      "amount": "Amount",
+      "category": "Category",
+      "direction": "Direction",
+      "currency": "Currency"
+    },
+    "direction": {
+      "expense": "Expense",
+      "income": "Income"
+    },
+    "category": {
+      "SUBSCRIPTION": "Subscriptions",
+      "RENT": "Rent",
+      "BILL": "Bills",
+      "BANK": "Bank",
+      "GOVERNMENT": "Government",
+      "OTHER": "Other"
+    },
+    "billingDayOrdinal": "{{day}}"
+  },
+  "home": {
+    "eyebrow": "Personal money",
+    "title": "Monthly spending",
+    "subtitle": "Open a month for runway, bills, and totals. Templates and goals live in Setup.",
+    "setupLink": "Setup →",
+    "addNextMonth": "Add next month",
+    "addingNextMonth": "Adding…",
+    "emptyMonths": "No months yet. Click “Add next month” to start tracking.",
+    "confirmDeleteMonth": "Delete “{{label}}” and all of its items? This cannot be undone.",
+    "monthRow": {
+      "bankSavings": "Bank savings {{amount}}",
+      "in": "In {{amount}}",
+      "out": "Out {{amount}}",
+      "left": "Left {{amount}}",
+      "deleteAria": "Delete {{label}}"
+    },
+    "compare": {
+      "title": "Month-over-month",
+      "empty": "Add another month to compare expenses and leftover.",
+      "hint": "Expense bars and leftover trend across your months.",
+      "rowLeft": "Left {{amount}}",
+      "expenseDelta": " · expenses {{delta}}",
+      "rowTotals": "Out {{out}} · In {{in}}"
+    }
+  },
+  "month": {
+    "titleFallback": "Month",
+    "notFound": "That month does not exist yet. Go back and add the next month from the home page.",
+    "tabs": {
+      "ariaLabel": "Month sections",
+      "overview": "Overview",
+      "plan": "Plan",
+      "bills": "Bills",
+      "wealth": "Wealth"
+    },
+    "overview": {
+      "netWorth": "Net worth",
+      "openWealth": "Wealth →"
+    },
+    "plan": {
+      "addItem": "+ Add item",
+      "empty": "No items for this month yet.",
+      "emptyCta": "Add a subscription, rent, or income"
+    },
+    "summary": {
+      "leftThisMonth": "Left this month",
+      "cashflowPlan": "Cashflow plan"
+    },
+    "wealth": {
+      "netWorthNow": "Net worth now",
+      "sourceBoth": "Bank + Kraken",
+      "sourceBankUnavailable": "Bank only (Kraken unavailable)",
+      "sourceBankWrongCurrency": "Bank only — Kraken is {{currency}}",
+      "projectedAfterMonth": "Projected after month",
+      "projectedBoth": "Bank + Kraken + left",
+      "projectedBankOnly": "Bank + left (Kraken excluded)"
+    },
+    "runway": {
+      "title": "Weekly runway",
+      "intro_one": "Based on what’s left this month and {{count}} day remaining.",
+      "intro_other": "Based on what’s left this month and {{count}} days remaining.",
+      "perDay": "Per day",
+      "perWeek": "Per week",
+      "unpaidExpenses": "Unpaid expenses"
+    },
+    "bills": {
+      "title": "Billing calendar",
+      "empty": "Add a billing day on items to see when charges hit this month.",
+      "hint": "Mark bills paid when they clear. Unpaid expenses feed the runway total.",
+      "dayTotalOut": "{{amount}} out",
+      "flowIn": "in",
+      "flowOut": "out",
+      "markUnpaid": "Mark unpaid",
+      "markPaid": "Mark paid",
+      "undatedHeading": "No billing day"
+    },
+    "itemForm": {
+      "editTitle": "Edit item",
+      "addTitle": "Add monthly item",
+      "namePlaceholder": "Rent, Netflix, groceries…",
+      "amountPlaceholder": "120.00",
+      "billingDayLabel": "Billing day (optional, 1–31)",
+      "billingDayPlaceholder": "e.g. 1 for rent, 15 for Netflix",
+      "notesLabel": "Notes (optional)",
+      "activeHelp": "Active (counts toward monthly totals)",
+      "oneOffHelp": "One-off (does not copy to next month)",
+      "submitAdd": "Add item"
+    },
+    "itemList": {
+      "oneOff": "one-off",
+      "chargedOn": "Charged on the {{day}}",
+      "disabled": "Disabled for this month",
+      "markedPaid": "Marked paid"
+    },
+    "kraken": {
+      "title": "Kraken total ({{currency}})",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing…",
+      "earn": "Earn {{amount}}",
+      "spot": "Spot {{amount}}",
+      "liveCached": "Live (cached)",
+      "live": "Live",
+      "snapshot": "Snapshot for this month"
+    },
+    "settings": {
+      "bankSavingsAria": "Bank savings amount",
+      "currencyAria": "Currency code"
+    },
+    "goals": {
+      "manageInSetup": "Manage in Setup",
+      "addInSetup": "Add one in Setup"
+    },
+    "confirmDeleteItem": "Delete “{{name}}”?"
+  },
+  "setup": {
+    "title": "Setup",
+    "subtitle": "Templates seed new months. Goals track buffers against your net worth.",
+    "templates": {
+      "title": "Recurring templates",
+      "description": "When templates exist, “Add next month” copies from here instead of the previous month. One-offs never copy.",
+      "empty": "No templates yet — new months still copy from the previous month.",
+      "editHeading": "Edit template",
+      "addHeading": "Add template",
+      "billingDayPlaceholder": "Billing day (optional)",
+      "save": "Save template",
+      "submitAdd": "Add template",
+      "confirmDelete": "Delete template “{{name}}”?"
+    },
+    "goals": {
+      "title": "Goals & buffers",
+      "subtitle": "Progress vs net worth now ({{amount}}).",
+      "empty": "No goals yet.",
+      "progress": "{{pct}}% of {{target}}",
+      "namePlaceholder": "Emergency fund",
+      "targetPlaceholder": "5000",
+      "submitAdd": "Add goal",
+      "cancelEdit": "Cancel edit",
+      "confirmDelete": "Delete “{{name}}”?"
+    }
+  },
+  "errors": {
+    "graphqlUnreachable": "Could not reach GraphQL. Is the server running on port 4000?",
+    "createNextMonth": "Could not create next month",
+    "deleteMonth": "Could not delete month",
+    "createItem": "Could not create item",
+    "updateItem": "Could not update item",
+    "updatePaidStatus": "Could not update paid status",
+    "deleteItem": "Could not delete item",
+    "validation": {
+      "nameRequired": "Name is required",
+      "positiveAmount": "Enter a positive amount",
+      "positiveTarget": "Enter a positive target amount",
+      "billingDayRange": "Billing day must be between 1 and 31",
+      "billingDayRangeShort": "Billing day must be 1–31",
+      "nonNegativeBalance": "Enter a balance of 0 or more"
+    }
+  }
+}

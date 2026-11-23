@@ -1,29 +1,21 @@
-import { useMutation } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { GET_MONTH, SET_MONTH_BANK_BALANCE } from '../graphql/operations'
-import { balanceToCents, centsToInput } from '../lib/format'
+import { useTranslation } from 'react-i18next'
+import { balanceToCents, centsToInput } from '../../lib/format'
 
 type Props = {
-  monthId: string
   bankBalanceCents: number
-  year: number
-  month: number
+  loading?: boolean
+  onSave: (amountCents: number) => Promise<unknown>
 }
 
-export function BankBalanceSetting({
-  monthId,
+export function BankBalanceSettingView({
   bankBalanceCents,
-  year,
-  month,
+  loading,
+  onSave,
 }: Props) {
+  const { t } = useTranslation()
   const [value, setValue] = useState(centsToInput(bankBalanceCents))
   const [error, setError] = useState<string | null>(null)
-  const [setMonthBankBalance, { loading }] = useMutation(
-    SET_MONTH_BANK_BALANCE,
-    {
-      refetchQueries: [{ query: GET_MONTH, variables: { year, month } }],
-    },
-  )
 
   useEffect(() => {
     setValue(centsToInput(bankBalanceCents))
@@ -36,22 +28,22 @@ export function BankBalanceSetting({
         event.preventDefault()
         const amountCents = balanceToCents(value)
         if (amountCents === null) {
-          setError('Enter a balance of 0 or more')
+          setError(t('errors.validation.nonNegativeBalance'))
           return
         }
         setError(null)
-        void setMonthBankBalance({ variables: { monthId, amountCents } })
+        void onSave(amountCents)
       }}
     >
       <div className="flex items-end gap-2">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-(--muted)">Bank savings</span>
+          <span className="text-(--muted)">{t('common.bankSavings')}</span>
           <input
             className="w-36 rounded-md border border-(--line) bg-white px-2 py-1.5"
             inputMode="decimal"
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            aria-label="Bank savings amount"
+            aria-label={t('month.settings.bankSavingsAria')}
           />
         </label>
         <button
@@ -59,7 +51,7 @@ export function BankBalanceSetting({
           disabled={loading}
           className="btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
         >
-          Save
+          {t('common.save')}
         </button>
       </div>
       {error ? <p className="text-sm text-(--expense)">{error}</p> : null}
