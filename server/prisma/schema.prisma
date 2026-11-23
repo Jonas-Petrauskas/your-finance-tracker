@@ -56,19 +56,6 @@ model RecurringItem {
   @@index([monthId])
 }
 
-model RecurringTemplate {
-  id          String    @id @default(cuid())
-  name        String
-  amountCents Int
-  direction   Direction
-  category    Category
-  billingDay  Int?
-  notes       String?
-  active      Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
 model Goal {
   id          String   @id @default(cuid())
   name        String

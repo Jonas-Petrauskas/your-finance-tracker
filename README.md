@@ -18,7 +18,7 @@ pnpm dev
 - App: http://localhost:5173 — home lists months; open one for that month’s summary
 - GraphiQL: http://localhost:4000/graphql
 
-**Add next month** copies from **templates** when any exist; otherwise copies non-one-off items + bank from the latest month, and snapshots Kraken onto the month you leave behind.
+**Add next month** copies non-one-off items + bank from the latest month, and snapshots Kraken onto the month you leave behind.
 
 Month page includes: net worth / projected totals, weekly runway, billing calendar (mark paid), goals, recurring + one-off items.
 

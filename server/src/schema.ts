@@ -50,17 +50,6 @@ const typeDefs = /* GraphQL */ `
     oneOff: Boolean!
   }
 
-  type RecurringTemplate {
-    id: ID!
-    name: String!
-    amountCents: Int!
-    direction: Direction!
-    category: Category!
-    billingDay: Int
-    notes: String
-    active: Boolean!
-  }
-
   type Goal {
     id: ID!
     name: String!
@@ -114,16 +103,6 @@ const typeDefs = /* GraphQL */ `
     oneOff: Boolean
   }
 
-  input TemplateInput {
-    name: String!
-    amountCents: Int!
-    direction: Direction!
-    category: Category!
-    billingDay: Int
-    notes: String
-    active: Boolean
-  }
-
   input GoalInput {
     name: String!
     targetCents: Int!
@@ -134,7 +113,6 @@ const typeDefs = /* GraphQL */ `
     monthByDate(year: Int!, month: Int!): Month
     settings: Settings!
     krakenBalance(forceRefresh: Boolean): KrakenBalance!
-    templates: [RecurringTemplate!]!
     goals: [Goal!]!
   }
 
@@ -148,9 +126,6 @@ const typeDefs = /* GraphQL */ `
     setCurrency(currency: String!): Settings!
     setMonthBankBalance(monthId: ID!, amountCents: Int!): Month!
     snapshotMonthKraken(monthId: ID!): Month!
-    createTemplate(input: TemplateInput!): RecurringTemplate!
-    updateTemplate(id: ID!, input: TemplateInput!): RecurringTemplate!
-    deleteTemplate(id: ID!): Boolean!
     createGoal(input: GoalInput!): Goal!
     updateGoal(id: ID!, input: GoalInput!): Goal!
     deleteGoal(id: ID!): Boolean!
@@ -167,16 +142,6 @@ type ItemInput = {
   active?: boolean | null
   paid?: boolean | null
   oneOff?: boolean | null
-}
-
-type TemplateInput = {
-  name: string
-  amountCents: number
-  direction: Direction
-  category: Category
-  billingDay?: number | null
-  notes?: string | null
-  active?: boolean | null
 }
 
 type GoalInput = {
@@ -253,10 +218,6 @@ function validateItemInput(input: ItemInput) {
     paid: input.paid ?? false,
     oneOff: input.oneOff ?? false,
   }
-}
-
-function validateTemplateInput(input: TemplateInput) {
-  return validateSharedItemFields(input)
 }
 
 function validateGoalInput(input: GoalInput) {
@@ -366,10 +327,6 @@ export const schema = createSchema({
         _: unknown,
         { forceRefresh }: { forceRefresh?: boolean | null },
       ) => getKrakenCryptoBalance({ forceRefresh: forceRefresh === true }),
-      templates: () =>
-        prisma.recurringTemplate.findMany({
-          orderBy: [{ direction: 'asc' }, { name: 'asc' }],
-        }),
       goals: () => prisma.goal.findMany({ orderBy: { name: 'asc' } }),
     },
     Mutation: {
@@ -402,33 +359,19 @@ export const schema = createSchema({
           await snapshotKrakenOntoMonth(latest.id)
         }
 
-        const templates = await prisma.recurringTemplate.findMany()
-        const sourceItems =
-          templates.length > 0
-            ? templates.map((t) => ({
-                name: t.name,
-                amountCents: t.amountCents,
-                direction: t.direction,
-                category: t.category,
-                billingDay: t.billingDay,
-                notes: t.notes,
-                active: t.active,
-                paid: false,
-                oneOff: false,
-              }))
-            : latest.items
-                .filter((item) => !item.oneOff)
-                .map((item) => ({
-                  name: item.name,
-                  amountCents: item.amountCents,
-                  direction: item.direction,
-                  category: item.category,
-                  billingDay: item.billingDay,
-                  notes: item.notes,
-                  active: item.active,
-                  paid: false,
-                  oneOff: false,
-                }))
+        const sourceItems = latest.items
+          .filter((item) => !item.oneOff)
+          .map((item) => ({
+            name: item.name,
+            amountCents: item.amountCents,
+            direction: item.direction,
+            category: item.category,
+            billingDay: item.billingDay,
+            notes: item.notes,
+            active: item.active,
+            paid: false,
+            oneOff: false,
+          }))
 
         return prisma.month.create({
           data: {
@@ -523,29 +466,6 @@ export const schema = createSchema({
         const month = await prisma.month.findUnique({ where: { id: monthId } })
         if (!month) throw new Error('Month not found')
         return snapshotKrakenOntoMonth(monthId)
-      },
-      createTemplate: (_: unknown, { input }: { input: TemplateInput }) => {
-        const data = validateTemplateInput(input)
-        return prisma.recurringTemplate.create({ data })
-      },
-      updateTemplate: async (
-        _: unknown,
-        { id, input }: { id: string; input: TemplateInput },
-      ) => {
-        const data = validateTemplateInput(input)
-        try {
-          return await prisma.recurringTemplate.update({ where: { id }, data })
-        } catch {
-          throw new Error('Template not found')
-        }
-      },
-      deleteTemplate: async (_: unknown, { id }: { id: string }) => {
-        try {
-          await prisma.recurringTemplate.delete({ where: { id } })
-          return true
-        } catch {
-          throw new Error('Template not found')
-        }
       },
       createGoal: (_: unknown, { input }: { input: GoalInput }) => {
         const data = validateGoalInput(input)

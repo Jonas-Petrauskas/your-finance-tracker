@@ -1,21 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { GoalsPanel } from '../components/Goals/GoalsPanel'
-import { TemplatesPanel } from '../components/Templates/TemplatesPanel'
 import { QueryStatus } from '../components/ui/QueryStatus'
 import { useSetupData } from '../hooks/useSetupData'
 
 export function SetupPage() {
   const { t } = useTranslation()
-  const {
-    currency,
-    goals,
-    templates,
-    netWorthCents,
-    loading,
-    error,
-    hasData,
-  } = useSetupData()
+  const { currency, goals, netWorthCents, loading, error, hasData } =
+    useSetupData()
 
   return (
     <div className="mx-auto flex min-h-svh max-w-3xl flex-col gap-8 px-4 py-8 sm:px-6">
@@ -35,14 +27,11 @@ export function SetupPage() {
       <QueryStatus loading={loading} hasData={hasData} error={error} />
 
       {hasData ? (
-        <>
-          <TemplatesPanel templates={templates} currency={currency} />
-          <GoalsPanel
-            goals={goals}
-            currency={currency}
-            availableCents={netWorthCents}
-          />
-        </>
+        <GoalsPanel
+          goals={goals}
+          currency={currency}
+          availableCents={netWorthCents}
+        />
       ) : null}
     </div>
   )

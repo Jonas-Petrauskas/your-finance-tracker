@@ -14,17 +14,6 @@ const ITEM_FIELDS = `
   oneOff
 `
 
-const TEMPLATE_FIELDS = `
-  id
-  name
-  amountCents
-  direction
-  category
-  billingDay
-  notes
-  active
-`
-
 const MONTH_SUMMARY_FIELDS = `
   incomeCents
   expenseCents
@@ -66,9 +55,6 @@ export const GET_HOME = gql`
       id
       name
       targetCents
-    }
-    templates {
-      ${TEMPLATE_FIELDS}
     }
     krakenBalance {
       ${KRAKEN_BALANCE_FIELDS}
@@ -172,28 +158,6 @@ export const SET_MONTH_BANK_BALANCE = gql`
       id
       bankBalanceCents
     }
-  }
-`
-
-export const CREATE_TEMPLATE = gql`
-  mutation CreateTemplate($input: TemplateInput!) {
-    createTemplate(input: $input) {
-      ${TEMPLATE_FIELDS}
-    }
-  }
-`
-
-export const UPDATE_TEMPLATE = gql`
-  mutation UpdateTemplate($id: ID!, $input: TemplateInput!) {
-    updateTemplate(id: $id, input: $input) {
-      ${TEMPLATE_FIELDS}
-    }
-  }
-`
-
-export const DELETE_TEMPLATE = gql`
-  mutation DeleteTemplate($id: ID!) {
-    deleteTemplate(id: $id)
   }
 `
 
