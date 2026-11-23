@@ -21,17 +21,6 @@ export type RecurringItem = {
   oneOff: boolean
 }
 
-export type RecurringTemplate = {
-  id: string
-  name: string
-  amountCents: number
-  direction: Direction
-  category: Category
-  billingDay: number | null
-  notes: string | null
-  active: boolean
-}
-
 export type Goal = {
   id: string
   name: string
@@ -93,16 +82,6 @@ export type ItemInput = {
   active?: boolean
   paid?: boolean
   oneOff?: boolean
-}
-
-export type TemplateInput = {
-  name: string
-  amountCents: number
-  direction: Direction
-  category: Category
-  billingDay?: number | null
-  notes?: string | null
-  active?: boolean
 }
 
 export type GoalInput = {

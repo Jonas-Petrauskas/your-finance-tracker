@@ -40,7 +40,7 @@
   "home": {
     "eyebrow": "Personal money",
     "title": "Monthly spending",
-    "subtitle": "Open a month for runway, bills, and totals. Templates and goals live in Setup.",
+    "subtitle": "Open a month for runway, bills, and totals. Goals live in Setup.",
     "setupLink": "Setup →",
     "addNextMonth": "Add next month",
     "addingNextMonth": "Adding…",
@@ -153,18 +153,7 @@
   },
   "setup": {
     "title": "Setup",
-    "subtitle": "Templates seed new months. Goals track buffers against your net worth.",
-    "templates": {
-      "title": "Recurring templates",
-      "description": "When templates exist, “Add next month” copies from here instead of the previous month. One-offs never copy.",
-      "empty": "No templates yet — new months still copy from the previous month.",
-      "editHeading": "Edit template",
-      "addHeading": "Add template",
-      "billingDayPlaceholder": "Billing day (optional)",
-      "save": "Save template",
-      "submitAdd": "Add template",
-      "confirmDelete": "Delete template “{{name}}”?"
-    },
+    "subtitle": "Goals track buffers against your net worth.",
     "goals": {
       "title": "Goals & buffers",
       "subtitle": "Progress vs net worth now ({{amount}}).",
