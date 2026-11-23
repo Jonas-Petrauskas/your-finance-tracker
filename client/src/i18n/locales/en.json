@@ -37,6 +37,28 @@
     },
     "billingDayOrdinal": "{{day}}"
   },
+  "landing": {
+    "brand": "Monthly spending",
+    "headline": "See what’s left before the month runs out.",
+    "blurb": "A quiet personal tracker for income, bills, runway, and buffers—kept local on your machine.",
+    "cta": "Track your spending",
+    "featuresTitle": "What you get",
+    "featuresIntro": "Open a month, plan the cashflow, and keep an eye on wealth without a spreadsheet.",
+    "features": {
+      "plan": {
+        "title": "Monthly plan",
+        "description": "Recurring income and expenses plus one-offs. Add the next month and carry forward what still applies."
+      },
+      "bills": {
+        "title": "Bills & runway",
+        "description": "Billing days on a calendar, mark what’s paid, and a weekly runway from what’s still left."
+      },
+      "wealth": {
+        "title": "Wealth & goals",
+        "description": "Bank balance, optional Kraken snapshot, and buffers tracked against your net worth."
+      }
+    }
+  },
   "home": {
     "eyebrow": "Personal money",
     "title": "Monthly spending",

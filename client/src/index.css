@@ -144,3 +144,92 @@ h2,
 .bar-expense {
   background: linear-gradient(90deg, var(--expense), #f07840);
 }
+
+/* Landing page */
+@keyframes landing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.85rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-blob-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3%, -4%) scale(1.06);
+  }
+}
+
+.landing-fade {
+  opacity: 0;
+  animation: landing-fade-up 0.7s ease-out forwards;
+}
+
+.landing-delay-1 {
+  animation-delay: 0.05s;
+}
+
+.landing-delay-2 {
+  animation-delay: 0.18s;
+}
+
+.landing-delay-3 {
+  animation-delay: 0.32s;
+}
+
+.landing-delay-4 {
+  animation-delay: 0.46s;
+}
+
+.landing-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.55;
+  animation: landing-blob-drift 14s ease-in-out infinite;
+}
+
+.landing-blob-income {
+  top: 8%;
+  right: -8%;
+  width: min(42vw, 22rem);
+  height: min(42vw, 22rem);
+  background: var(--income-soft);
+  animation-delay: 0s;
+}
+
+.landing-blob-expense {
+  bottom: 18%;
+  left: -12%;
+  width: min(36vw, 18rem);
+  height: min(36vw, 18rem);
+  background: var(--expense-soft);
+  animation-delay: -4s;
+}
+
+.landing-blob-left {
+  top: 42%;
+  right: 12%;
+  width: min(28vw, 14rem);
+  height: min(28vw, 14rem);
+  background: var(--left-soft);
+  animation-delay: -8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-fade {
+    opacity: 1;
+    animation: none;
+  }
+
+  .landing-blob {
+    animation: none;
+  }
+}

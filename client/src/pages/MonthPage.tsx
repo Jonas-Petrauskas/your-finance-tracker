@@ -39,7 +39,7 @@ export function MonthPage() {
       <header className="flex flex-col gap-4 text-left sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Link
-            to="/"
+            to="/months"
             className="text-sm text-(--muted) underline-offset-2 hover:underline"
           >
             {t('common.backToHome')}

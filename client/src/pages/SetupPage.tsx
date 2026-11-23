@@ -13,7 +13,7 @@ export function SetupPage() {
     <div className="mx-auto flex min-h-svh max-w-3xl flex-col gap-8 px-4 py-8 sm:px-6">
       <header className="text-left">
         <Link
-          to="/"
+          to="/months"
           className="text-sm text-(--muted) underline-offset-2 hover:underline"
         >
           {t('common.backToHome')}
