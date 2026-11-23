@@ -1,12 +1,5 @@
-import { useMutation } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import {
-  CREATE_TEMPLATE,
-  DELETE_TEMPLATE,
-  GET_HOME,
-  UPDATE_TEMPLATE,
-} from '../graphql/operations'
-import { amountToCents, centsToInput, formatMoney } from '../lib/format'
+import { amountToCents, centsToInput, formatMoney } from '../../lib/format'
 import {
   CATEGORY_LABELS,
   categoriesForDirection,
@@ -15,14 +8,27 @@ import {
   type Direction,
   type RecurringTemplate,
   type TemplateInput,
-} from '../lib/types'
+} from '../../lib/types'
 
 type Props = {
   templates: RecurringTemplate[]
   currency: string
+  creating?: boolean
+  updating?: boolean
+  onCreate: (input: TemplateInput) => Promise<unknown>
+  onUpdate: (id: string, input: TemplateInput) => Promise<unknown>
+  onDelete: (id: string) => Promise<unknown>
 }
 
-export function TemplatesPanel({ templates, currency }: Props) {
+export function TemplatesPanelView({
+  templates,
+  currency,
+  creating = false,
+  updating = false,
+  onCreate,
+  onUpdate,
+  onDelete,
+}: Props) {
   const [editing, setEditing] = useState<RecurringTemplate | null>(null)
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
@@ -30,16 +36,6 @@ export function TemplatesPanel({ templates, currency }: Props) {
   const [category, setCategory] = useState<Category>('SUBSCRIPTION')
   const [billingDay, setBillingDay] = useState('')
   const [error, setError] = useState<string | null>(null)
-
-  const [createTemplate, { loading: creating }] = useMutation(CREATE_TEMPLATE, {
-    refetchQueries: [{ query: GET_HOME }],
-  })
-  const [updateTemplate, { loading: updating }] = useMutation(UPDATE_TEMPLATE, {
-    refetchQueries: [{ query: GET_HOME }],
-  })
-  const [deleteTemplate] = useMutation(DELETE_TEMPLATE, {
-    refetchQueries: [{ query: GET_HOME }],
-  })
 
   useEffect(() => {
     if (!editing) return
@@ -87,10 +83,10 @@ export function TemplatesPanel({ templates, currency }: Props) {
       active: true,
     }
     if (editing) {
-      await updateTemplate({ variables: { id: editing.id, input } })
+      await onUpdate(editing.id, input)
       setEditing(null)
     } else {
-      await createTemplate({ variables: { input } })
+      await onCreate(input)
     }
     setName('')
     setAmount('')
@@ -133,7 +129,7 @@ export function TemplatesPanel({ templates, currency }: Props) {
                 className="rounded-md border border-(--line) px-2 py-1 text-xs text-(--expense)"
                 onClick={() => {
                   if (window.confirm(`Delete template “${template.name}”?`)) {
-                    void deleteTemplate({ variables: { id: template.id } })
+                    void onDelete(template.id)
                   }
                 }}
               >
@@ -148,7 +144,10 @@ export function TemplatesPanel({ templates, currency }: Props) {
           </li>
         ) : null}
       </ul>
-      <form className="grid gap-2 rounded-xl border border-(--line) bg-(--panel) p-4" onSubmit={handleSubmit}>
+      <form
+        className="grid gap-2 rounded-xl border border-(--line) bg-(--panel) p-4"
+        onSubmit={(event) => void handleSubmit(event)}
+      >
         <p className="text-sm font-medium text-(--ink)">
           {editing ? 'Edit template' : 'Add template'}
         </p>

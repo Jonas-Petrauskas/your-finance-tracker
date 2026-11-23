@@ -1,5 +1,5 @@
-import { formatMoney } from '../lib/format'
-import type { KrakenBalance } from '../lib/types'
+import { formatMoney } from '../../lib/format'
+import type { KrakenBalance } from '../../lib/types'
 
 type Props = {
   krakenBalance?: KrakenBalance | null

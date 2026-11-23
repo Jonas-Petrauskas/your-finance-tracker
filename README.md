@@ -10,9 +10,9 @@ Local React + GraphQL app for monthly income and expenses. Data stays in SQLite 
 ## Run
 
 ```bash
-npm install
-npm run db:migrate
-npm run dev
+pnpm install
+pnpm db:migrate
+pnpm dev
 ```
 
 - App: http://localhost:5173 — home lists months; open one for that month’s summary
@@ -31,6 +31,6 @@ KRAKEN_API_KEY="..."
 KRAKEN_API_SECRET="..."
 ```
 
-Live Kraken is EUR. Combined totals include Kraken only when Settings currency is EUR. Restart `npm run dev` after changing `.env`.
+Live Kraken is EUR. Combined totals include Kraken only when Settings currency is EUR. Restart `pnpm dev` after changing `.env`.
 
 Use GraphiQL to try the same queries and mutations the UI uses while learning GraphQL.

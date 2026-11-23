@@ -1,5 +1,10 @@
-import { formatMoney } from '../lib/format'
-import type { KrakenBalance, MonthlySummary } from '../lib/types'
+import { formatMoney } from '../../lib/format'
+import {
+  computeNetWorthCents,
+  computeProjectedCents,
+  includeKrakenInWealth,
+} from '../../lib/wealth'
+import type { KrakenBalance, MonthlySummary } from '../../lib/types'
 import { KrakenBalanceCard } from './KrakenBalanceCard'
 
 export type SummaryVariant = 'cashflow' | 'wealth'
@@ -28,15 +33,25 @@ export function SummaryStrip({
   refreshingKraken = false,
 }: Props) {
   const leftNegative = summary.leftCents < 0
-  const krakenOk =
-    Boolean(krakenBalance) && !krakenBalance?.error && !krakenLoading
-  const krakenCents = krakenOk ? (krakenBalance?.balanceCents ?? 0) : 0
+  const includeKraken = includeKrakenInWealth(krakenBalance, currency, {
+    loading: krakenLoading,
+  })
   const krakenCurrency = krakenBalance?.currency ?? 'EUR'
   const sameCurrency = currency === krakenCurrency
-  const includeKraken = sameCurrency && krakenOk
 
-  const netWorthCents = bankBalanceCents + (includeKraken ? krakenCents : 0)
-  const projectedCents = netWorthCents + summary.leftCents
+  const netWorthCents = computeNetWorthCents({
+    bankBalanceCents,
+    kraken: krakenBalance,
+    currency,
+    krakenLoading,
+  })
+  const projectedCents = computeProjectedCents({
+    bankBalanceCents,
+    leftCents: summary.leftCents,
+    kraken: krakenBalance,
+    currency,
+    krakenLoading,
+  })
 
   if (variant === 'cashflow') {
     return (

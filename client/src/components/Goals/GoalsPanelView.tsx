@@ -1,54 +1,35 @@
-import { useMutation } from '@apollo/client'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  CREATE_GOAL,
-  DELETE_GOAL,
-  GET_HOME,
-  GET_MONTH,
-  UPDATE_GOAL,
-} from '../graphql/operations'
-import { amountToCents, centsToInput, formatMoney } from '../lib/format'
-import type { Goal } from '../lib/types'
+import { amountToCents, centsToInput, formatMoney } from '../../lib/format'
+import type { Goal, GoalInput } from '../../lib/types'
 
 type Props = {
   goals: Goal[]
   currency: string
   availableCents: number
-  year?: number
-  month?: number
-  /** When false, show progress only (edit on Setup). */
   manage?: boolean
+  creating?: boolean
+  updating?: boolean
+  onCreate?: (input: GoalInput) => Promise<unknown>
+  onUpdate?: (id: string, input: GoalInput) => Promise<unknown>
+  onDelete?: (id: string) => Promise<unknown>
 }
 
-export function GoalsPanel({
+export function GoalsPanelView({
   goals,
   currency,
   availableCents,
-  year,
-  month,
   manage = true,
+  creating = false,
+  updating = false,
+  onCreate,
+  onUpdate,
+  onDelete,
 }: Props) {
   const [name, setName] = useState('')
   const [target, setTarget] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<Goal | null>(null)
-
-  const refetch =
-    year != null && month != null
-      ? [
-          { query: GET_HOME },
-          { query: GET_MONTH, variables: { year, month } },
-        ]
-      : [{ query: GET_HOME }]
-
-  const [createGoal, { loading: creating }] = useMutation(CREATE_GOAL, {
-    refetchQueries: refetch,
-  })
-  const [updateGoal, { loading: updating }] = useMutation(UPDATE_GOAL, {
-    refetchQueries: refetch,
-  })
-  const [deleteGoal] = useMutation(DELETE_GOAL, { refetchQueries: refetch })
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -64,10 +45,10 @@ export function GoalsPanel({
     setError(null)
     const input = { name: name.trim(), targetCents }
     if (editing) {
-      await updateGoal({ variables: { id: editing.id, input } })
+      await onUpdate?.(editing.id, input)
       setEditing(null)
     } else {
-      await createGoal({ variables: { input } })
+      await onCreate?.(input)
     }
     setName('')
     setTarget('')
@@ -101,10 +82,7 @@ export function GoalsPanel({
             Math.round((availableCents / Math.max(goal.targetCents, 1)) * 100),
           )
           return (
-            <li
-              key={goal.id}
-              className="surface-card px-4 py-3"
-            >
+            <li key={goal.id} className="surface-card px-4 py-3">
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium text-(--ink)">{goal.name}</p>
                 {manage ? (
@@ -125,7 +103,7 @@ export function GoalsPanel({
                       className="rounded-md border border-(--line) px-2 py-1 text-(--expense)"
                       onClick={() => {
                         if (window.confirm(`Delete “${goal.name}”?`)) {
-                          void deleteGoal({ variables: { id: goal.id } })
+                          void onDelete?.(goal.id)
                         }
                       }}
                     >
@@ -166,7 +144,7 @@ export function GoalsPanel({
       {manage ? (
         <form
           className="grid gap-2 sm:grid-cols-[1fr_8rem_auto]"
-          onSubmit={handleSubmit}
+          onSubmit={(event) => void handleSubmit(event)}
         >
           <input
             className="rounded-md border border-(--line) px-3 py-2 text-sm"

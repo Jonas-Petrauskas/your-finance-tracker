@@ -1,6 +1,6 @@
-import { formatMoney } from '../lib/format'
-import { computeRunway } from '../lib/runway'
-import type { RecurringItem } from '../lib/types'
+import { formatMoney } from '../../lib/format'
+import { computeRunway } from '../../lib/runway'
+import type { RecurringItem } from '../../lib/types'
 
 type Props = {
   year: number

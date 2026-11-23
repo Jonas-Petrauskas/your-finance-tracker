@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { amountToCents, centsToInput } from '../lib/format'
+import { amountToCents, centsToInput } from '../../lib/format'
 import {
   CATEGORY_LABELS,
   categoriesForDirection,
@@ -8,7 +8,7 @@ import {
   type Direction,
   type ItemInput,
   type RecurringItem,
-} from '../lib/types'
+} from '../../lib/types'
 
 type Props = {
   initial?: RecurringItem | null

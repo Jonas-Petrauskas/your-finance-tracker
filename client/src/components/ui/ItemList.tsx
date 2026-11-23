@@ -1,11 +1,11 @@
-import { formatMoney } from '../lib/format'
+import { formatMoney } from '../../lib/format'
 import {
   CATEGORY_LABELS,
   categoryOrderForItems,
   formatBillingDay,
   type Category,
   type RecurringItem,
-} from '../lib/types'
+} from '../../lib/types'
 
 type Props = {
   title: string

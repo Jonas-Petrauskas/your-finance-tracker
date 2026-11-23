@@ -1,5 +1,5 @@
-import { formatMoney } from '../lib/format'
-import type { MonthListItem } from '../lib/types'
+import { formatMoney } from '../../lib/format'
+import type { MonthListItem } from '../../lib/types'
 
 type Props = {
   months: MonthListItem[]
