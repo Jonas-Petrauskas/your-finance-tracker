@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../lib/format'
 import type { KrakenBalance } from '../../lib/types'
 
@@ -16,13 +17,22 @@ export function KrakenBalanceCard({
   onRefresh,
   refreshing = false,
 }: Props) {
+  const { t } = useTranslation()
   const currency = krakenBalance?.currency ?? 'EUR'
+  const status = live
+    ? krakenBalance?.cached
+      ? t('month.kraken.liveCached')
+      : t('month.kraken.live')
+    : t('month.kraken.snapshot')
+  const updated = krakenBalance?.updatedAt
+    ? ` · ${new Date(krakenBalance.updatedAt).toLocaleString()}`
+    : ''
 
   return (
     <div className="tile tile-kraken">
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-sky-900">
-          Kraken total ({currency})
+          {t('month.kraken.title', { currency })}
         </p>
         {live && onRefresh ? (
           <button
@@ -31,12 +41,12 @@ export function KrakenBalanceCard({
             disabled={refreshing || loading}
             className="text-xs font-medium text-sky-800 underline-offset-2 hover:underline disabled:opacity-50"
           >
-            {refreshing ? 'Refreshing…' : 'Refresh'}
+            {refreshing ? t('month.kraken.refreshing') : t('month.kraken.refresh')}
           </button>
         ) : null}
       </div>
       {loading && !krakenBalance ? (
-        <p className="mt-1 text-sm text-(--muted)">Loading…</p>
+        <p className="mt-1 text-sm text-(--muted)">{t('common.loading')}</p>
       ) : krakenBalance?.error ? (
         <p className="mt-1 text-sm text-(--expense)">{krakenBalance.error}</p>
       ) : (
@@ -45,19 +55,17 @@ export function KrakenBalanceCard({
             {formatMoney(krakenBalance?.balanceCents ?? 0, currency)}
           </p>
           <p className="mt-1 text-xs text-(--muted)">
-            Earn {formatMoney(krakenBalance?.earnCents ?? 0, currency)}
+            {t('month.kraken.earn', {
+              amount: formatMoney(krakenBalance?.earnCents ?? 0, currency),
+            })}
             {' · '}
-            Spot {formatMoney(krakenBalance?.spotCents ?? 0, currency)}
+            {t('month.kraken.spot', {
+              amount: formatMoney(krakenBalance?.spotCents ?? 0, currency),
+            })}
           </p>
           <p className="mt-1 text-xs text-(--muted)">
-            {live
-              ? krakenBalance?.cached
-                ? 'Live (cached)'
-                : 'Live'
-              : 'Snapshot for this month'}
-            {krakenBalance?.updatedAt
-              ? ` · ${new Date(krakenBalance.updatedAt).toLocaleString()}`
-              : ''}
+            {status}
+            {updated}
           </p>
         </>
       )}

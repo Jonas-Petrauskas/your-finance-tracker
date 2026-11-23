@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 type Props = {
   loading?: boolean
   hasData?: boolean
@@ -13,12 +15,16 @@ export function QueryStatus({
   actionError,
   emptyMessage,
 }: Props) {
+  const { t } = useTranslation()
+
   return (
     <>
-      {loading && !hasData ? <p className="text-(--muted)">Loading…</p> : null}
+      {loading && !hasData ? (
+        <p className="text-(--muted)">{t('common.loading')}</p>
+      ) : null}
       {error ? (
         <p className="rounded-md border border-(--expense) bg-white px-3 py-2 text-(--expense)">
-          Could not reach GraphQL. Is the server running on port 4000?
+          {t('errors.graphqlUnreachable')}
         </p>
       ) : null}
       {actionError ? (

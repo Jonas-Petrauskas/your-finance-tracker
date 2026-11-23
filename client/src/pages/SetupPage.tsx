@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { GoalsPanel } from '../components/Goals/GoalsPanel'
 import { TemplatesPanel } from '../components/Templates/TemplatesPanel'
@@ -5,6 +6,7 @@ import { QueryStatus } from '../components/ui/QueryStatus'
 import { useSetupData } from '../hooks/useSetupData'
 
 export function SetupPage() {
+  const { t } = useTranslation()
   const {
     currency,
     goals,
@@ -22,15 +24,12 @@ export function SetupPage() {
           to="/"
           className="text-sm text-(--muted) underline-offset-2 hover:underline"
         >
-          ← All months
+          {t('common.backToHome')}
         </Link>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-(--ink) sm:text-4xl">
-          Setup
+          {t('setup.title')}
         </h1>
-        <p className="mt-2 max-w-xl text-(--muted)">
-          Templates seed new months. Goals track buffers against your net
-          worth.
-        </p>
+        <p className="mt-2 max-w-xl text-(--muted)">{t('setup.subtitle')}</p>
       </header>
 
       <QueryStatus loading={loading} hasData={hasData} error={error} />

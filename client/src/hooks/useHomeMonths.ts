@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   CREATE_NEXT_MONTH,
@@ -15,6 +16,7 @@ type HomeData = {
 }
 
 export function useHomeMonths() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data, loading, error } = useQuery<HomeData>(GET_HOME)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -36,14 +38,16 @@ export function useHomeMonths() {
       const created = result.data?.createNextMonth as MonthListItem | undefined
       if (created) navigate(`/months/${created.year}/${created.month}`)
     } catch (err) {
-      setActionError(graphqlErrorMessage(err, 'Could not create next month'))
+      setActionError(
+        graphqlErrorMessage(err, t('errors.createNextMonth')),
+      )
     }
   }
 
   async function removeMonth(month: MonthListItem) {
     if (
       !window.confirm(
-        `Delete “${month.label}” and all of its items? This cannot be undone.`,
+        t('home.confirmDeleteMonth', { label: month.label }),
       )
     ) {
       return
@@ -52,7 +56,7 @@ export function useHomeMonths() {
       setActionError(null)
       await deleteMonth({ variables: { id: month.id } })
     } catch (err) {
-      setActionError(graphqlErrorMessage(err, 'Could not delete month'))
+      setActionError(graphqlErrorMessage(err, t('errors.deleteMonth')))
     }
   }
 

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
@@ -38,6 +39,8 @@ export function PlanTab({
   onDelete,
   onToggleActive,
 }: Props) {
+  const { t } = useTranslation()
+
   return (
     <>
       {formOpen ? (
@@ -55,26 +58,26 @@ export function PlanTab({
             onClick={onOpenAdd}
             className="btn-primary px-4 py-2 text-sm"
           >
-            + Add item
+            {t('month.plan.addItem')}
           </button>
         </div>
       )}
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-(--line) bg-white/70 px-4 py-8 text-center text-(--muted)">
-          No items for this month yet.{' '}
+          {t('month.plan.empty')}{' '}
           <button
             type="button"
             onClick={onOpenAdd}
             className="text-(--accent) underline-offset-2 hover:underline"
           >
-            Add a subscription, rent, or income
+            {t('month.plan.emptyCta')}
           </button>
           .
         </div>
       ) : (
         <div className="grid gap-8">
           <ItemList
-            title="Expenses"
+            title={t('common.expenses')}
             items={expenses}
             currency={currency}
             categoryOrder={EXPENSE_CATEGORIES}
@@ -83,7 +86,7 @@ export function PlanTab({
             onToggleActive={onToggleActive}
           />
           <ItemList
-            title="Income"
+            title={t('common.income')}
             items={incomes}
             currency={currency}
             categoryOrder={INCOME_CATEGORIES}

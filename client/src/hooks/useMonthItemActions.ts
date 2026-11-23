@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CREATE_ITEM,
   DELETE_ITEM,
@@ -30,6 +31,7 @@ export function useMonthItemActions({
   onUpdated,
   onDeletedEditing,
 }: Options) {
+  const { t } = useTranslation()
   const [formError, setFormError] = useState<string | null>(null)
   const refetch = [monthRefetch(year, month)]
 
@@ -53,7 +55,7 @@ export function useMonthItemActions({
       await createItem({ variables: { monthId, input } })
       onCreated?.()
     } catch (err) {
-      setFormError(graphqlErrorMessage(err, 'Could not create item'))
+      setFormError(graphqlErrorMessage(err, t('errors.createItem')))
     }
   }
 
@@ -64,7 +66,7 @@ export function useMonthItemActions({
       await updateItem({ variables: { id: editing.id, input } })
       onUpdated?.()
     } catch (err) {
-      setFormError(graphqlErrorMessage(err, 'Could not update item'))
+      setFormError(graphqlErrorMessage(err, t('errors.updateItem')))
     }
   }
 
@@ -78,7 +80,7 @@ export function useMonthItemActions({
         },
       })
     } catch (err) {
-      setFormError(graphqlErrorMessage(err, 'Could not update item'))
+      setFormError(graphqlErrorMessage(err, t('errors.updateItem')))
     }
   }
 
@@ -87,18 +89,20 @@ export function useMonthItemActions({
       setFormError(null)
       await setItemPaid({ variables: { id: item.id, paid: !item.paid } })
     } catch (err) {
-      setFormError(graphqlErrorMessage(err, 'Could not update paid status'))
+      setFormError(graphqlErrorMessage(err, t('errors.updatePaidStatus')))
     }
   }
 
   async function remove(item: RecurringItem) {
-    if (!window.confirm(`Delete “${item.name}”?`)) return
+    if (!window.confirm(t('month.confirmDeleteItem', { name: item.name }))) {
+      return
+    }
     try {
       setFormError(null)
       await deleteItem({ variables: { id: item.id } })
       if (editing?.id === item.id) onDeletedEditing?.()
     } catch (err) {
-      setFormError(graphqlErrorMessage(err, 'Could not delete item'))
+      setFormError(graphqlErrorMessage(err, t('errors.deleteItem')))
     }
   }
 

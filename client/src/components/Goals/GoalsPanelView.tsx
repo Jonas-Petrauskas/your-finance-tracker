@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { amountToCents, centsToInput, formatMoney } from '../../lib/format'
 import type { Goal, GoalInput } from '../../lib/types'
@@ -26,6 +27,7 @@ export function GoalsPanelView({
   onUpdate,
   onDelete,
 }: Props) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [target, setTarget] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -35,11 +37,11 @@ export function GoalsPanelView({
     event.preventDefault()
     const targetCents = amountToCents(target)
     if (!name.trim()) {
-      setError('Name is required')
+      setError(t('errors.validation.nameRequired'))
       return
     }
     if (targetCents === null) {
-      setError('Enter a positive target amount')
+      setError(t('errors.validation.positiveTarget'))
       return
     }
     setError(null)
@@ -59,11 +61,12 @@ export function GoalsPanelView({
       <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold text-(--ink)">
-            Goals & buffers
+            {t('setup.goals.title')}
           </h2>
           <p className="mt-1 text-sm text-(--muted)">
-            Progress vs net worth now ({formatMoney(availableCents, currency)}
-            ).
+            {t('setup.goals.subtitle', {
+              amount: formatMoney(availableCents, currency),
+            })}
           </p>
         </div>
         {!manage ? (
@@ -71,7 +74,7 @@ export function GoalsPanelView({
             to="/setup"
             className="text-sm text-(--accent) underline-offset-2 hover:underline"
           >
-            Manage in Setup
+            {t('month.goals.manageInSetup')}
           </Link>
         ) : null}
       </div>
@@ -96,18 +99,22 @@ export function GoalsPanelView({
                         setTarget(centsToInput(goal.targetCents))
                       }}
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
                       className="rounded-md border border-(--line) px-2 py-1 text-(--expense)"
                       onClick={() => {
-                        if (window.confirm(`Delete “${goal.name}”?`)) {
+                        if (
+                          window.confirm(
+                            t('setup.goals.confirmDelete', { name: goal.name }),
+                          )
+                        ) {
                           void onDelete?.(goal.id)
                         }
                       }}
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 ) : null}
@@ -119,14 +126,17 @@ export function GoalsPanelView({
                 />
               </div>
               <p className="mt-1 text-xs text-(--muted)">
-                {pct}% of {formatMoney(goal.targetCents, currency)}
+                {t('setup.goals.progress', {
+                  pct,
+                  target: formatMoney(goal.targetCents, currency),
+                })}
               </p>
             </li>
           )
         })}
         {goals.length === 0 ? (
           <li className="text-sm text-(--muted)">
-            No goals yet.
+            {t('setup.goals.empty')}
             {!manage ? (
               <>
                 {' '}
@@ -134,7 +144,7 @@ export function GoalsPanelView({
                   to="/setup"
                   className="text-(--accent) underline-offset-2 hover:underline"
                 >
-                  Add one in Setup
+                  {t('month.goals.addInSetup')}
                 </Link>
               </>
             ) : null}
@@ -148,13 +158,13 @@ export function GoalsPanelView({
         >
           <input
             className="rounded-md border border-(--line) px-3 py-2 text-sm"
-            placeholder="Emergency fund"
+            placeholder={t('setup.goals.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <input
             className="rounded-md border border-(--line) px-3 py-2 text-sm"
-            placeholder="5000"
+            placeholder={t('setup.goals.targetPlaceholder')}
             inputMode="decimal"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
@@ -164,7 +174,7 @@ export function GoalsPanelView({
             disabled={creating || updating}
             className="btn-primary px-3 py-2 text-sm disabled:opacity-50"
           >
-            {editing ? 'Save' : 'Add goal'}
+            {editing ? t('common.save') : t('setup.goals.submitAdd')}
           </button>
           {editing ? (
             <button
@@ -176,7 +186,7 @@ export function GoalsPanelView({
                 setTarget('')
               }}
             >
-              Cancel edit
+              {t('setup.goals.cancelEdit')}
             </button>
           ) : null}
           {error ? (

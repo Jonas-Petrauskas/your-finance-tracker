@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../../lib/format'
 import type { MonthlySummary, RecurringItem } from '../../../lib/types'
 import { SummaryStrip } from '../../ui/SummaryStrip'
@@ -24,6 +25,8 @@ export function OverviewTab({
   netWorthCents,
   onOpenWealth,
 }: Props) {
+  const { t } = useTranslation()
+
   return (
     <>
       <SummaryStrip
@@ -45,12 +48,12 @@ export function OverviewTab({
         className="tile tile-wealth w-full transition hover:brightness-[0.98]"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-teal-800">
-          Net worth
+          {t('month.overview.netWorth')}
         </p>
         <p className="mt-1 text-lg font-bold text-(--ink)">
           {formatMoney(netWorthCents, currency)}
           <span className="ml-2 text-sm font-semibold text-(--accent)">
-            Wealth →
+            {t('month.overview.openWealth')}
           </span>
         </p>
       </button>

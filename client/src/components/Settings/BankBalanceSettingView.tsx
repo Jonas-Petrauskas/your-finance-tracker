@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { balanceToCents, centsToInput } from '../../lib/format'
 
 type Props = {
@@ -12,6 +13,7 @@ export function BankBalanceSettingView({
   loading,
   onSave,
 }: Props) {
+  const { t } = useTranslation()
   const [value, setValue] = useState(centsToInput(bankBalanceCents))
   const [error, setError] = useState<string | null>(null)
 
@@ -26,7 +28,7 @@ export function BankBalanceSettingView({
         event.preventDefault()
         const amountCents = balanceToCents(value)
         if (amountCents === null) {
-          setError('Enter a balance of 0 or more')
+          setError(t('errors.validation.nonNegativeBalance'))
           return
         }
         setError(null)
@@ -35,13 +37,13 @@ export function BankBalanceSettingView({
     >
       <div className="flex items-end gap-2">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-(--muted)">Bank savings</span>
+          <span className="text-(--muted)">{t('common.bankSavings')}</span>
           <input
             className="w-36 rounded-md border border-(--line) bg-white px-2 py-1.5"
             inputMode="decimal"
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            aria-label="Bank savings amount"
+            aria-label={t('month.settings.bankSavingsAria')}
           />
         </label>
         <button
@@ -49,7 +51,7 @@ export function BankBalanceSettingView({
           disabled={loading}
           className="btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
         >
-          Save
+          {t('common.save')}
         </button>
       </div>
       {error ? <p className="text-sm text-(--expense)">{error}</p> : null}

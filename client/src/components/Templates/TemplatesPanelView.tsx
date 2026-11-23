@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { amountToCents, centsToInput, formatMoney } from '../../lib/format'
 import {
-  CATEGORY_LABELS,
   categoriesForDirection,
+  categoryLabel,
   defaultDirectionForCategory,
   type Category,
   type Direction,
@@ -29,6 +30,7 @@ export function TemplatesPanelView({
   onUpdate,
   onDelete,
 }: Props) {
+  const { t } = useTranslation()
   const [editing, setEditing] = useState<RecurringTemplate | null>(null)
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
@@ -54,11 +56,11 @@ export function TemplatesPanelView({
     event.preventDefault()
     const amountCents = amountToCents(amount)
     if (!name.trim()) {
-      setError('Name is required')
+      setError(t('errors.validation.nameRequired'))
       return
     }
     if (amountCents === null) {
-      setError('Enter a positive amount')
+      setError(t('errors.validation.positiveAmount'))
       return
     }
     let parsedBillingDay: number | null = null
@@ -69,7 +71,7 @@ export function TemplatesPanelView({
         parsedBillingDay < 1 ||
         parsedBillingDay > 31
       ) {
-        setError('Billing day must be 1–31')
+        setError(t('errors.validation.billingDayRangeShort'))
         return
       }
     }
@@ -96,11 +98,10 @@ export function TemplatesPanelView({
   return (
     <section className="text-left">
       <h2 className="mb-1 text-lg font-semibold text-(--ink)">
-        Recurring templates
+        {t('setup.templates.title')}
       </h2>
       <p className="mb-4 text-sm text-(--muted)">
-        When templates exist, “Add next month” copies from here instead of the
-        previous month. One-offs never copy.
+        {t('setup.templates.description')}
       </p>
       <ul className="mb-4 grid gap-2">
         {templates.map((template) => (
@@ -112,7 +113,7 @@ export function TemplatesPanelView({
               <span className="font-medium text-(--ink)">{template.name}</span>
               <span className="text-(--muted)">
                 {' '}
-                · {CATEGORY_LABELS[template.category]} ·{' '}
+                · {categoryLabel(template.category)} ·{' '}
                 {formatMoney(template.amountCents, currency)}
               </span>
             </span>
@@ -122,25 +123,31 @@ export function TemplatesPanelView({
                 className="rounded-md border border-(--line) px-2 py-1 text-xs"
                 onClick={() => setEditing(template)}
               >
-                Edit
+                {t('common.edit')}
               </button>
               <button
                 type="button"
                 className="rounded-md border border-(--line) px-2 py-1 text-xs text-(--expense)"
                 onClick={() => {
-                  if (window.confirm(`Delete template “${template.name}”?`)) {
+                  if (
+                    window.confirm(
+                      t('setup.templates.confirmDelete', {
+                        name: template.name,
+                      }),
+                    )
+                  ) {
                     void onDelete(template.id)
                   }
                 }}
               >
-                Delete
+                {t('common.delete')}
               </button>
             </span>
           </li>
         ))}
         {templates.length === 0 ? (
           <li className="text-sm text-(--muted)">
-            No templates yet — new months still copy from the previous month.
+            {t('setup.templates.empty')}
           </li>
         ) : null}
       </ul>
@@ -149,18 +156,20 @@ export function TemplatesPanelView({
         onSubmit={(event) => void handleSubmit(event)}
       >
         <p className="text-sm font-medium text-(--ink)">
-          {editing ? 'Edit template' : 'Add template'}
+          {editing
+            ? t('setup.templates.editHeading')
+            : t('setup.templates.addHeading')}
         </p>
         <input
           className="rounded-md border border-(--line) px-3 py-2 text-sm"
-          placeholder="Name"
+          placeholder={t('common.fields.name')}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <div className="grid gap-2 sm:grid-cols-3">
           <input
             className="rounded-md border border-(--line) px-3 py-2 text-sm"
-            placeholder="Amount"
+            placeholder={t('common.fields.amount')}
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -175,8 +184,8 @@ export function TemplatesPanelView({
               if (!allowed.includes(category)) setCategory(allowed[0]!)
             }}
           >
-            <option value="EXPENSE">Expense</option>
-            <option value="INCOME">Income</option>
+            <option value="EXPENSE">{t('common.direction.expense')}</option>
+            <option value="INCOME">{t('common.direction.income')}</option>
           </select>
           <select
             className="rounded-md border border-(--line) px-3 py-2 text-sm"
@@ -189,14 +198,14 @@ export function TemplatesPanelView({
           >
             {categoryOptions.map((key) => (
               <option key={key} value={key}>
-                {CATEGORY_LABELS[key]}
+                {categoryLabel(key)}
               </option>
             ))}
           </select>
         </div>
         <input
           className="rounded-md border border-(--line) px-3 py-2 text-sm"
-          placeholder="Billing day (optional)"
+          placeholder={t('setup.templates.billingDayPlaceholder')}
           inputMode="numeric"
           value={billingDay}
           onChange={(e) => setBillingDay(e.target.value)}
@@ -208,7 +217,9 @@ export function TemplatesPanelView({
             disabled={creating || updating}
             className="btn-primary px-3 py-2 text-sm disabled:opacity-50"
           >
-            {editing ? 'Save template' : 'Add template'}
+            {editing
+              ? t('setup.templates.save')
+              : t('setup.templates.submitAdd')}
           </button>
           {editing ? (
             <button
@@ -221,7 +232,7 @@ export function TemplatesPanelView({
                 setBillingDay('')
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           ) : null}
         </div>

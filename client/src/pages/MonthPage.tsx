@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { BillsTab } from '../components/Month/sections/BillsTab'
 import { OverviewTab } from '../components/Month/sections/OverviewTab'
@@ -10,6 +11,7 @@ import { QueryStatus } from '../components/ui/QueryStatus'
 import { useMonthWorkspace } from '../hooks/useMonthWorkspace'
 
 export function MonthPage() {
+  const { t } = useTranslation()
   const {
     year,
     month,
@@ -40,10 +42,11 @@ export function MonthPage() {
             to="/"
             className="text-sm text-(--muted) underline-offset-2 hover:underline"
           >
-            ← All months
+            {t('common.backToHome')}
           </Link>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-(--ink) sm:text-4xl">
-            {monthRecord?.label ?? (valid ? `${year}-${month}` : 'Month')}
+            {monthRecord?.label ??
+              (valid ? `${year}-${month}` : t('month.titleFallback'))}
           </h1>
         </div>
         {monthRecord ? (
@@ -65,9 +68,7 @@ export function MonthPage() {
         error={error}
         actionError={actions.formError}
         emptyMessage={
-          !loading && hasData && !monthRecord
-            ? 'That month does not exist yet. Go back and add the next month from the home page.'
-            : null
+          !loading && hasData && !monthRecord ? t('month.notFound') : null
         }
       />
 

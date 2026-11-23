@@ -1,5 +1,7 @@
+import i18n from '../i18n'
+
 export function formatMoney(amountCents: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat(i18n.language, {
     style: 'currency',
     currency,
   }).format(amountCents / 100)

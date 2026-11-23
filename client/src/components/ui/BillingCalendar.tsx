@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../lib/format'
 import { buildBillingCalendar } from '../../lib/runway'
 import { formatBillingDay, type RecurringItem } from '../../lib/types'
@@ -17,6 +18,7 @@ export function BillingCalendar({
   currency,
   onTogglePaid,
 }: Props) {
+  const { t } = useTranslation()
   const entries = buildBillingCalendar(year, month, items)
   const undated = items.filter((item) => item.active && item.billingDay == null)
   const today = new Date()
@@ -27,10 +29,10 @@ export function BillingCalendar({
   if (entries.length === 0 && undated.length === 0) {
     return (
       <section className="rounded-xl border border-dashed border-(--line) bg-white/70 px-4 py-6 text-left text-(--muted)">
-        <h2 className="text-lg font-semibold text-(--ink)">Billing calendar</h2>
-        <p className="mt-2 text-sm">
-          Add a billing day on items to see when charges hit this month.
-        </p>
+        <h2 className="text-lg font-semibold text-(--ink)">
+          {t('month.bills.title')}
+        </h2>
+        <p className="mt-2 text-sm">{t('month.bills.empty')}</p>
       </section>
     )
   }
@@ -38,14 +40,15 @@ export function BillingCalendar({
   return (
     <section className="text-left">
       <h2 className="mb-1 text-lg font-semibold text-(--ink)">
-        Billing calendar
+        {t('month.bills.title')}
       </h2>
-      <p className="mb-4 text-sm text-(--muted)">
-        Mark bills paid when they clear. Unpaid expenses feed the runway total.
-      </p>
+      <p className="mb-4 text-sm text-(--muted)">{t('month.bills.hint')}</p>
       <div className="grid gap-3">
         {entries.map((entry) => {
           const past = todayDay != null && entry.day < todayDay
+          const dayOut = entry.items
+            .filter((item) => item.direction === 'EXPENSE')
+            .reduce((sum, item) => sum + item.amountCents, 0)
           return (
             <div
               key={entry.day}
@@ -60,18 +63,14 @@ export function BillingCalendar({
                   {formatBillingDay(entry.day)}
                   {todayDay === entry.day ? (
                     <span className="ml-2 rounded bg-(--left-soft) px-1.5 py-0.5 text-xs font-semibold text-(--left)">
-                      today
+                      {t('common.today')}
                     </span>
                   ) : null}
                 </p>
                 <p className="text-sm text-(--muted)">
-                  {formatMoney(
-                    entry.items
-                      .filter((item) => item.direction === 'EXPENSE')
-                      .reduce((sum, item) => sum + item.amountCents, 0),
-                    currency,
-                  )}{' '}
-                  out
+                  {t('month.bills.dayTotalOut', {
+                    amount: formatMoney(dayOut, currency),
+                  })}
                 </p>
               </div>
               <ul className="grid gap-2">
@@ -89,7 +88,10 @@ export function BillingCalendar({
                     >
                       {item.name}{' '}
                       <span className="text-(--muted)">
-                        ({item.direction === 'INCOME' ? 'in' : 'out'}{' '}
+                        (
+                        {item.direction === 'INCOME'
+                          ? t('month.bills.flowIn')
+                          : t('month.bills.flowOut')}{' '}
                         {formatMoney(item.amountCents, currency)})
                       </span>
                     </span>
@@ -102,7 +104,9 @@ export function BillingCalendar({
                       }
                       onClick={() => onTogglePaid(item)}
                     >
-                      {item.paid ? 'Mark unpaid' : 'Mark paid'}
+                      {item.paid
+                        ? t('month.bills.markUnpaid')
+                        : t('month.bills.markPaid')}
                     </button>
                   </li>
                 ))}
@@ -113,7 +117,7 @@ export function BillingCalendar({
         {undated.length > 0 ? (
           <div className="surface-card px-4 py-3">
             <p className="mb-2 text-sm font-semibold text-(--ink)">
-              No billing day
+              {t('month.bills.undatedHeading')}
             </p>
             <ul className="grid gap-2">
               {undated.map((item) => (
@@ -142,7 +146,9 @@ export function BillingCalendar({
                     }
                     onClick={() => onTogglePaid(item)}
                   >
-                    {item.paid ? 'Mark unpaid' : 'Mark paid'}
+                    {item.paid
+                      ? t('month.bills.markUnpaid')
+                      : t('month.bills.markPaid')}
                   </button>
                 </li>
               ))}
