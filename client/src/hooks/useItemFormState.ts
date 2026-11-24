@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { RecurringItem } from '../lib/types'
 
-export type MonthTab = 'overview' | 'plan' | 'bills' | 'wealth'
+export type MonthTab = 'overview' | 'plan' | 'bills' | 'wealth' | 'goals'
 
 export function useItemFormState(setTab?: (tab: MonthTab) => void) {
   const [editing, setEditing] = useState<RecurringItem | null>(null)

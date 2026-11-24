@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { BillsTab } from '../components/Month/sections/BillsTab'
+import { GoalsTab } from '../components/Month/sections/GoalsTab'
 import { OverviewTab } from '../components/Month/sections/OverviewTab'
 import { PlanTab } from '../components/Month/sections/PlanTab'
 import { WealthTab } from '../components/Month/sections/WealthTab'
@@ -138,8 +139,16 @@ export function MonthPage() {
                     : undefined
                 }
                 refreshingKraken={kraken.refreshingKraken}
+                year={year}
+                month={month}
+              />
+            ) : null}
+
+            {tab === 'goals' ? (
+              <GoalsTab
                 goals={goals}
-                netWorthCents={netWorthCents}
+                currency={currency}
+                availableCents={netWorthCents}
                 year={year}
                 month={month}
               />

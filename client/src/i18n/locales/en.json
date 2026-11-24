@@ -64,8 +64,7 @@
   "home": {
     "eyebrow": "Personal money",
     "title": "Monthly spending",
-    "subtitle": "Open a month for runway, bills, and totals. Goals live in Setup.",
-    "setupLink": "Setup →",
+    "subtitle": "Open a month for runway, bills, totals, and goals.",
     "addNextMonth": "Add next month",
     "addingNextMonth": "Adding…",
     "emptyMonths": "No months yet. Click “Add next month” to start tracking.",
@@ -94,7 +93,8 @@
       "overview": "Overview",
       "plan": "Plan",
       "bills": "Bills",
-      "wealth": "Wealth"
+      "wealth": "Wealth",
+      "goals": "Goals"
     },
     "overview": {
       "netWorth": "Net worth",
@@ -172,25 +172,20 @@
       "currencyAria": "Currency"
     },
     "goals": {
-      "manageInSetup": "Manage in Setup",
-      "addInSetup": "Add one in Setup"
-    },
-    "confirmDeleteItem": "Delete “{{name}}”?"
-  },
-  "setup": {
-    "title": "Setup",
-    "subtitle": "Goals track buffers against your net worth.",
-    "goals": {
       "title": "Goals & buffers",
       "subtitle": "Progress vs net worth now ({{amount}}).",
       "empty": "No goals yet.",
+      "emptyCta": "Add a goal",
+      "addButton": "+ Add goal",
+      "addTitle": "Add goal",
+      "editTitle": "Edit goal",
       "progress": "{{pct}}% of {{target}}",
       "namePlaceholder": "Emergency fund",
       "targetPlaceholder": "5000",
       "submitAdd": "Add goal",
-      "cancelEdit": "Cancel edit",
       "confirmDelete": "Delete “{{name}}”?"
-    }
+    },
+    "confirmDeleteItem": "Delete “{{name}}”?"
   },
   "errors": {
     "graphqlUnreachable": "Could not reach GraphQL. Is the server running on port 4000?",

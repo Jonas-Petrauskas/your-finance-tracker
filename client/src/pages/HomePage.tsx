@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 import { MonthList } from '../components/Home/sections/MonthList'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { MonthCompare } from '../components/ui/MonthCompare'
@@ -33,12 +32,6 @@ export function HomePage() {
             {t('home.title')}
           </h1>
           <p className="mt-2 max-w-xl text-(--muted)">{t('home.subtitle')}</p>
-          <Link
-            to="/setup"
-            className="mt-3 inline-block text-sm text-(--accent) underline-offset-2 hover:underline"
-          >
-            {t('home.setupLink')}
-          </Link>
         </div>
         <button
           type="button"

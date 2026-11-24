@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { MonthTab } from '../../../hooks/useItemFormState'
 
-const TAB_IDS: MonthTab[] = ['overview', 'plan', 'bills', 'wealth']
+const TAB_IDS: MonthTab[] = ['overview', 'plan', 'bills', 'wealth', 'goals']
 
 type Props = {
   tab: MonthTab

@@ -1,5 +1,4 @@
-import type { Goal, KrakenBalance, MonthlySummary } from '../../../lib/types'
-import { GoalsPanel } from '../../Goals/GoalsPanel'
+import type { KrakenBalance, MonthlySummary } from '../../../lib/types'
 import { BankBalanceSetting } from '../../Settings/BankBalanceSetting'
 import { SummaryStrip } from '../../ui/SummaryStrip'
 
@@ -13,8 +12,6 @@ type Props = {
   krakenLive: boolean
   onRefreshKraken?: () => void
   refreshingKraken: boolean
-  goals: Goal[]
-  netWorthCents: number
   year: number
   month: number
 }
@@ -29,8 +26,6 @@ export function WealthTab({
   krakenLive,
   onRefreshKraken,
   refreshingKraken,
-  goals,
-  netWorthCents,
   year,
   month,
 }: Props) {
@@ -52,14 +47,6 @@ export function WealthTab({
         krakenLive={krakenLive}
         onRefreshKraken={onRefreshKraken}
         refreshingKraken={refreshingKraken}
-      />
-      <GoalsPanel
-        goals={goals}
-        currency={currency}
-        availableCents={netWorthCents}
-        year={year}
-        month={month}
-        manage={false}
       />
     </>
   )
