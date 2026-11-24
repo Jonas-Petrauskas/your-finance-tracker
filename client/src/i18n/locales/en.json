@@ -15,7 +15,8 @@
     "backToHome": "← All months",
     "income": "Income",
     "expenses": "Expenses",
-    "bankSavings": "Bank savings",
+    "bankSavings": "Cash savings",
+    "cashSavings": "Cash savings",
     "today": "today",
     "fields": {
       "name": "Name",
@@ -70,7 +71,7 @@
     "emptyMonths": "No months yet. Click “Add next month” to start tracking.",
     "confirmDeleteMonth": "Delete “{{label}}” and all of its items? This cannot be undone.",
     "monthRow": {
-      "bankSavings": "Bank savings {{amount}}",
+      "bankSavings": "Savings {{amount}}",
       "in": "In {{amount}}",
       "out": "Out {{amount}}",
       "left": "Left {{amount}}",
@@ -110,12 +111,13 @@
     },
     "wealth": {
       "netWorthNow": "Net worth now",
-      "sourceBoth": "Bank + Kraken",
-      "sourceBankUnavailable": "Bank only (Kraken unavailable)",
-      "sourceBankWrongCurrency": "Bank only — Kraken is {{currency}}",
+      "sourceBoth": "Cash + Kraken",
+      "sourceBankUnavailable": "Cash only (Kraken unavailable)",
+      "sourceBankWrongCurrency": "Cash only — Kraken is {{currency}}",
       "projectedAfterMonth": "Projected after month",
-      "projectedBoth": "Bank + Kraken + left",
-      "projectedBankOnly": "Bank + left (Kraken excluded)"
+      "projectedBoth": "Cash + Kraken + left",
+      "projectedBankOnly": "Cash + left (Kraken excluded)",
+      "savingsHint": "Enter cash you hold this month. This is manual — not linked to a bank account."
     },
     "runway": {
       "title": "Weekly runway",
@@ -165,8 +167,9 @@
       "snapshot": "Snapshot for this month"
     },
     "settings": {
-      "bankSavingsAria": "Bank savings amount",
-      "currencyAria": "Currency code"
+      "bankSavingsAria": "Cash savings amount",
+      "cashSavingsAria": "Cash savings amount",
+      "currencyAria": "Currency"
     },
     "goals": {
       "manageInSetup": "Manage in Setup",

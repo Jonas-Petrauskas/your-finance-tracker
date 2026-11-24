@@ -1,10 +1,12 @@
 import type { Goal, KrakenBalance, MonthlySummary } from '../../../lib/types'
 import { GoalsPanel } from '../../Goals/GoalsPanel'
+import { BankBalanceSetting } from '../../Settings/BankBalanceSetting'
 import { SummaryStrip } from '../../ui/SummaryStrip'
 
 type Props = {
   summary: MonthlySummary
   currency: string
+  monthId: string
   bankBalanceCents: number
   krakenBalance: KrakenBalance | null
   krakenLoading: boolean
@@ -20,6 +22,7 @@ type Props = {
 export function WealthTab({
   summary,
   currency,
+  monthId,
   bankBalanceCents,
   krakenBalance,
   krakenLoading,
@@ -33,6 +36,12 @@ export function WealthTab({
 }: Props) {
   return (
     <>
+      <BankBalanceSetting
+        monthId={monthId}
+        bankBalanceCents={bankBalanceCents}
+        year={year}
+        month={month}
+      />
       <SummaryStrip
         variant="wealth"
         summary={summary}

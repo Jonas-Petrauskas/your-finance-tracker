@@ -20,6 +20,8 @@ type Props<T extends string> = {
   label?: string
   id?: string
   disabled?: boolean
+  showCheck?: boolean
+  compact?: boolean
 }
 
 type MenuPosition = {
@@ -35,6 +37,8 @@ export function SelectMenu<T extends string>({
   label,
   id,
   disabled = false,
+  showCheck = true,
+  compact = false,
 }: Props<T>) {
   const generatedId = useId()
   const listboxId = `${id ?? generatedId}-listbox`
@@ -172,7 +176,9 @@ export function SelectMenu<T extends string>({
         aria-labelledby={label ? `${buttonId}-label` : undefined}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={onTriggerKeyDown}
-        className={`flex w-full items-center justify-between gap-3 rounded-md border bg-white px-3 py-2 text-left text-(--ink) transition duration-150 focus:border-[#1a6fd4] focus:outline-none focus:ring-2 focus:ring-[#1a6fd4]/25 ${
+        className={`flex w-full items-center rounded-md border bg-white text-left text-(--ink) transition duration-150 focus:border-[#1a6fd4] focus:outline-none focus:ring-2 focus:ring-[#1a6fd4]/25 ${
+          compact ? 'gap-1.5 px-2.5 py-1.5' : 'justify-between gap-3 px-3 py-2'
+        } ${
           open
             ? 'border-[#1a6fd4] ring-2 ring-[#1a6fd4]/25'
             : 'border-(--line)'
@@ -180,7 +186,7 @@ export function SelectMenu<T extends string>({
       >
         <span className="min-w-0 truncate">{selected?.label}</span>
         <span
-          className={`ml-auto shrink-0 text-(--muted) transition-transform duration-150 ${
+          className={`shrink-0 text-(--muted) transition-transform duration-150 ${
             open ? 'rotate-180' : ''
           }`}
           aria-hidden
@@ -203,20 +209,28 @@ export function SelectMenu<T extends string>({
                 left: position.left,
                 width: position.width,
               }}
-              className="fixed z-[60] flex max-h-64 flex-col gap-1 overflow-auto rounded-2xl border border-(--line) bg-gradient-to-b from-white to-[#f7fcf9] p-2 shadow-[0_18px_44px_rgb(20_60_45_/_0.16)] outline-none"
+              className={`fixed z-[60] flex max-h-64 flex-col overflow-auto border border-(--line) bg-gradient-to-b from-white to-[#f7fcf9] shadow-[0_18px_44px_rgb(20_60_45_/_0.16)] outline-none ${
+                compact
+                  ? 'gap-0.5 rounded-xl p-1'
+                  : 'gap-1 rounded-2xl p-2'
+              }`}
             >
               {options.map((option, index) => {
                 const isSelected = option.value === value
                 const isActive = index === activeIndex
                 return (
-                  <li key={option.value} role="presentation">
+                  <li key={option.value} role="presentation" className="w-full">
                     <button
                       type="button"
                       role="option"
                       aria-selected={isSelected}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => selectValue(option.value)}
-                      className={`flex w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm transition duration-150 ${
+                      className={`flex w-full items-center text-left text-sm transition duration-150 ${
+                        compact
+                          ? 'justify-center gap-1 rounded-lg px-2 py-1.5'
+                          : 'justify-between gap-2 rounded-xl px-3.5 py-2.5'
+                      } ${
                         isSelected
                           ? 'bg-gradient-to-b from-[#14916e] to-(--accent) font-semibold text-white shadow-[0_6px_14px_rgb(15_122_92_/_0.28)]'
                           : isActive
@@ -225,7 +239,7 @@ export function SelectMenu<T extends string>({
                       }`}
                     >
                       <span className="min-w-0 truncate">{option.label}</span>
-                      {isSelected ? <CheckIcon /> : null}
+                      {showCheck && isSelected ? <CheckIcon /> : null}
                     </button>
                   </li>
                 )

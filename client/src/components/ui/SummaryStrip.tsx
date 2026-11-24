@@ -105,7 +105,7 @@ export function SummaryStrip({
     <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <div className="tile tile-bank">
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-          {t('common.bankSavings')}
+          {t('common.cashSavings')}
         </p>
         <p className="mt-1 text-2xl font-bold text-(--ink)">
           {formatMoney(bankBalanceCents, currency)}

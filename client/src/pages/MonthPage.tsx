@@ -5,7 +5,6 @@ import { OverviewTab } from '../components/Month/sections/OverviewTab'
 import { PlanTab } from '../components/Month/sections/PlanTab'
 import { WealthTab } from '../components/Month/sections/WealthTab'
 import { MonthTabNav } from '../components/Month/shared/MonthTabNav'
-import { BankBalanceSetting } from '../components/Settings/BankBalanceSetting'
 import { CurrencySetting } from '../components/Settings/CurrencySetting'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { QueryStatus } from '../components/ui/QueryStatus'
@@ -53,15 +52,7 @@ export function MonthPage() {
           </h1>
         </div>
         {monthRecord ? (
-          <div className="flex flex-col items-stretch gap-3 sm:items-end">
-            <CurrencySetting currency={currency} year={year} month={month} />
-            <BankBalanceSetting
-              monthId={monthRecord.id}
-              bankBalanceCents={monthRecord.bankBalanceCents}
-              year={year}
-              month={month}
-            />
-          </div>
+          <CurrencySetting currency={currency} year={year} month={month} />
         ) : null}
       </header>
 
@@ -136,6 +127,7 @@ export function MonthPage() {
               <WealthTab
                 summary={monthRecord.summary}
                 currency={currency}
+                monthId={monthRecord.id}
                 bankBalanceCents={monthRecord.bankBalanceCents}
                 krakenBalance={kraken.displayKraken}
                 krakenLoading={kraken.krakenLoading}
