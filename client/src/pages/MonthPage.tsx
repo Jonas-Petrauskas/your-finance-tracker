@@ -7,11 +7,14 @@ import { WealthTab } from '../components/Month/sections/WealthTab'
 import { MonthTabNav } from '../components/Month/shared/MonthTabNav'
 import { BankBalanceSetting } from '../components/Settings/BankBalanceSetting'
 import { CurrencySetting } from '../components/Settings/CurrencySetting'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { QueryStatus } from '../components/ui/QueryStatus'
+import { useConfirmDialog } from '../hooks/useConfirmDialog'
 import { useMonthWorkspace } from '../hooks/useMonthWorkspace'
 
 export function MonthPage() {
   const { t } = useTranslation()
+  const { requestConfirm, confirmProps } = useConfirmDialog()
   const {
     year,
     month,
@@ -107,7 +110,14 @@ export function MonthPage() {
                 onCloseForm={form.closeForm}
                 onSubmit={submitItem}
                 onEdit={form.openEdit}
-                onDelete={(item) => void actions.remove(item)}
+                onDelete={(item) => {
+                  void (async () => {
+                    const ok = await requestConfirm(
+                      t('month.confirmDeleteItem', { name: item.name }),
+                    )
+                    if (ok) await actions.remove(item)
+                  })()
+                }}
                 onToggleActive={(item) => void actions.toggleActive(item)}
               />
             ) : null}
@@ -145,6 +155,8 @@ export function MonthPage() {
           </div>
         </>
       ) : null}
+
+      <ConfirmDialog {...confirmProps} />
     </div>
   )
 }

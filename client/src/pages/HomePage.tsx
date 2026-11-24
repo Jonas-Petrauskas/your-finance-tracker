@@ -1,12 +1,15 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { MonthList } from '../components/Home/sections/MonthList'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { MonthCompare } from '../components/ui/MonthCompare'
 import { QueryStatus } from '../components/ui/QueryStatus'
+import { useConfirmDialog } from '../hooks/useConfirmDialog'
 import { useHomeMonths } from '../hooks/useHomeMonths'
 
 export function HomePage() {
   const { t } = useTranslation()
+  const { requestConfirm, confirmProps } = useConfirmDialog()
   const {
     months,
     currency,
@@ -63,10 +66,19 @@ export function HomePage() {
       <MonthList
         months={months}
         currency={currency}
-        onDelete={(month) => void removeMonth(month)}
+        onDelete={(month) => {
+          void (async () => {
+            const ok = await requestConfirm(
+              t('home.confirmDeleteMonth', { label: month.label }),
+            )
+            if (ok) await removeMonth(month)
+          })()
+        }}
       />
 
       {hasData ? <MonthCompare months={months} currency={currency} /> : null}
+
+      <ConfirmDialog {...confirmProps} />
     </div>
   )
 }

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
+import { useConfirmDialog } from '../../hooks/useConfirmDialog'
 import { amountToCents, centsToInput, formatMoney } from '../../lib/format'
 import type { Goal, GoalInput } from '../../lib/types'
 
@@ -28,6 +30,7 @@ export function GoalsPanelView({
   onDelete,
 }: Props) {
   const { t } = useTranslation()
+  const { requestConfirm, confirmProps } = useConfirmDialog()
   const [name, setName] = useState('')
   const [target, setTarget] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -105,13 +108,14 @@ export function GoalsPanelView({
                       type="button"
                       className="rounded-md border border-(--line) px-2 py-1 text-(--expense)"
                       onClick={() => {
-                        if (
-                          window.confirm(
-                            t('setup.goals.confirmDelete', { name: goal.name }),
+                        void (async () => {
+                          const ok = await requestConfirm(
+                            t('setup.goals.confirmDelete', {
+                              name: goal.name,
+                            }),
                           )
-                        ) {
-                          void onDelete?.(goal.id)
-                        }
+                          if (ok) await onDelete?.(goal.id)
+                        })()
                       }}
                     >
                       {t('common.delete')}
@@ -194,6 +198,8 @@ export function GoalsPanelView({
           ) : null}
         </form>
       ) : null}
+
+      <ConfirmDialog {...confirmProps} />
     </section>
   )
 }

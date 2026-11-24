@@ -94,9 +94,6 @@ export function useMonthItemActions({
   }
 
   async function remove(item: RecurringItem) {
-    if (!window.confirm(t('month.confirmDeleteItem', { name: item.name }))) {
-      return
-    }
     try {
       setFormError(null)
       await deleteItem({ variables: { id: item.id } })

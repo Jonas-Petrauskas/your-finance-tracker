@@ -45,13 +45,6 @@ export function useHomeMonths() {
   }
 
   async function removeMonth(month: MonthListItem) {
-    if (
-      !window.confirm(
-        t('home.confirmDeleteMonth', { label: month.label }),
-      )
-    ) {
-      return
-    }
     try {
       setActionError(null)
       await deleteMonth({ variables: { id: month.id } })
