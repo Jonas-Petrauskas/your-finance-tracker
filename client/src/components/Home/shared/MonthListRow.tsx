@@ -16,32 +16,34 @@ export function MonthListRow({ month, currency, onDelete }: Props) {
   const deleteLabel = t('home.monthRow.deleteAria', { label: month.label })
 
   return (
-    <li className="month-row flex items-stretch gap-2 rounded-xl border border-(--line) shadow-sm transition hover:border-(--accent)">
+    <li className="flex items-center gap-2.5">
       <Link
         to={`/months/${month.year}/${month.month}`}
-        className="flex min-w-0 flex-1 flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+        className="month-row group flex min-w-0 flex-1 flex-col gap-3 rounded-2xl border border-(--line) px-4 py-4 shadow-[0_8px_24px_rgb(20_60_45_/_0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-(--accent) hover:shadow-[0_12px_28px_rgb(15_122_92_/_0.12)] sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="text-left">
-          <p className="text-lg font-semibold text-(--ink)">{month.label}</p>
+          <p className="display text-lg font-semibold tracking-tight text-(--ink)">
+            {month.label}
+          </p>
           <p className="mt-1 text-sm text-(--muted)">
             {t('home.monthRow.bankSavings', {
               amount: formatMoney(month.bankBalanceCents, currency),
             })}
           </p>
         </div>
-        <div className="flex flex-wrap gap-4 text-sm sm:justify-end">
-          <span className="text-(--income)">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm sm:justify-end">
+          <span className="font-medium text-(--income)">
             {t('home.monthRow.in', {
               amount: formatMoney(month.summary.incomeCents, currency),
             })}
           </span>
-          <span className="text-(--expense)">
+          <span className="font-medium text-(--expense)">
             {t('home.monthRow.out', {
               amount: formatMoney(month.summary.expenseCents, currency),
             })}
           </span>
           <span
-            className="font-medium"
+            className="font-semibold"
             style={{
               color: leftNegative ? 'var(--left-neg)' : 'var(--left)',
             }}
@@ -52,17 +54,15 @@ export function MonthListRow({ month, currency, onDelete }: Props) {
           </span>
         </div>
       </Link>
-      <div className="flex items-center border-l border-(--line) px-2">
-        <button
-          type="button"
-          onClick={() => onDelete(month)}
-          className="rounded-md p-2 text-(--expense) hover:bg-red-50"
-          aria-label={deleteLabel}
-          title={deleteLabel}
-        >
-          <TrashIcon />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => onDelete(month)}
+        className="month-row-delete shrink-0 rounded-2xl border border-(--expense-border) bg-(--expense-soft) p-3 text-(--expense) shadow-[0_6px_16px_rgb(214_69_58_/_0.12)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#ffd2cb] hover:shadow-[0_10px_22px_rgb(214_69_58_/_0.18)]"
+        aria-label={deleteLabel}
+        title={deleteLabel}
+      >
+        <TrashIcon />
+      </button>
     </li>
   )
 }

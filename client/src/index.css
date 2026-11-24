@@ -145,9 +145,27 @@ button:disabled,
   box-shadow: 0 4px 12px rgb(15 122 92 / 0.25);
 }
 
+.month-tablist {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.92) 0%, rgb(247 252 249 / 0.88) 100%);
+}
+
+.month-tablist::-webkit-scrollbar {
+  display: none;
+}
+
+.month-tablist {
+  scrollbar-width: none;
+}
+
 .month-row {
   border-left: 4px solid var(--accent);
-  background: linear-gradient(90deg, #e8faf2 0%, #ffffff 28%);
+  background:
+    linear-gradient(90deg, #e8faf2 0%, #ffffff 32%),
+    linear-gradient(180deg, #ffffff 0%, #f7fcf9 100%);
+}
+
+.month-row-delete:active {
+  transform: translateY(0);
 }
 
 .bar-goal {

@@ -7,6 +7,7 @@ import {
 } from '../../../lib/types'
 import { ItemForm } from '../../ui/ItemForm'
 import { ItemList } from '../../ui/ItemList'
+import { Modal } from '../../ui/Modal'
 
 type Props = {
   currency: string
@@ -43,25 +44,16 @@ export function PlanTab({
 
   return (
     <>
-      {formOpen ? (
-        <ItemForm
-          key={editing?.id ?? 'create'}
-          initial={editing}
-          submitting={submitting}
-          onCancel={onCloseForm}
-          onSubmit={onSubmit}
-        />
-      ) : (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onOpenAdd}
-            className="btn-primary px-4 py-2 text-sm"
-          >
-            {t('month.plan.addItem')}
-          </button>
-        </div>
-      )}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onOpenAdd}
+          className="btn-primary px-4 py-2 text-sm"
+        >
+          {t('month.plan.addItem')}
+        </button>
+      </div>
+
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-(--line) bg-white/70 px-4 py-8 text-center text-(--muted)">
           {t('month.plan.empty')}{' '}
@@ -96,6 +88,16 @@ export function PlanTab({
           />
         </div>
       )}
+
+      <Modal open={formOpen} onClose={onCloseForm}>
+        <ItemForm
+          key={editing?.id ?? 'create'}
+          initial={editing}
+          submitting={submitting}
+          onCancel={onCloseForm}
+          onSubmit={onSubmit}
+        />
+      </Modal>
     </>
   )
 }

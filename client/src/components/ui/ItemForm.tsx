@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { amountToCents, centsToInput } from '../../lib/format'
 import {
@@ -10,6 +10,7 @@ import {
   type ItemInput,
   type RecurringItem,
 } from '../../lib/types'
+import { SelectMenu } from './SelectMenu'
 
 type Props = {
   initial?: RecurringItem | null
@@ -38,7 +39,14 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
   const [oneOff, setOneOff] = useState(initial?.oneOff ?? false)
   const [error, setError] = useState<string | null>(null)
 
-  const categoryOptions = categoriesForDirection(direction)
+  const categoryOptions = useMemo(
+    () =>
+      categoriesForDirection(direction).map((key) => ({
+        value: key,
+        label: categoryLabel(key),
+      })),
+    [direction],
+  )
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -61,7 +69,7 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
 
   return (
     <form
-      className="surface-card grid gap-3 p-4 text-left"
+      className="grid gap-3 p-5 text-left"
       onSubmit={(event) => {
         event.preventDefault()
         const amountCents = amountToCents(amount)
@@ -109,14 +117,14 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
       }}
     >
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-(--ink)">
+        <h2 className="display text-lg font-semibold tracking-tight text-(--ink)">
           {initial ? t('month.itemForm.editTitle') : t('month.itemForm.addTitle')}
         </h2>
         {onCancel ? (
           <button
             type="button"
             onClick={onCancel}
-            className="text-sm text-(--muted) underline"
+            className="rounded-md px-2 py-1 text-sm font-medium text-(--muted) hover:bg-(--accent-soft)/60 hover:text-(--ink)"
           >
             {t('common.cancel')}
           </button>
@@ -147,24 +155,15 @@ export function ItemForm({ initial, onSubmit, onCancel, submitting }: Props) {
           />
         </label>
 
-        <label className="grid gap-1 text-sm">
-          <span className="text-(--muted)">{t('common.fields.category')}</span>
-          <select
-            className="rounded-md border border-(--line) px-3 py-2"
-            value={category}
-            onChange={(event) => {
-              const next = event.target.value as Category
-              setCategory(next)
-              if (!initial) setDirection(defaultDirectionForCategory(next))
-            }}
-          >
-            {categoryOptions.map((key) => (
-              <option key={key} value={key}>
-                {categoryLabel(key)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SelectMenu
+          label={t('common.fields.category')}
+          value={category}
+          options={categoryOptions}
+          onChange={(next) => {
+            setCategory(next)
+            if (!initial) setDirection(defaultDirectionForCategory(next))
+          }}
+        />
       </div>
 
       <fieldset className="grid gap-2 text-sm">
