@@ -1,3 +1,4 @@
+import { FEATURES } from './features'
 import type { KrakenBalance } from './types'
 
 export function includeKrakenInWealth(
@@ -5,6 +6,7 @@ export function includeKrakenInWealth(
   currency: string,
   options?: { loading?: boolean },
 ): boolean {
+  if (!FEATURES.kraken) return false
   if (!kraken || kraken.error || options?.loading) return false
   const krakenCurrency = kraken.currency ?? 'EUR'
   return currency === krakenCurrency

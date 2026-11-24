@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { FEATURES } from '../../lib/features'
 import { formatMoney } from '../../lib/format'
 import type { KrakenBalance, MonthlySummary } from '../../lib/types'
 import {
@@ -101,8 +102,12 @@ export function SummaryStrip({
     )
   }
 
+  const showKraken = FEATURES.kraken
+
   return (
-    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <section
+      className={`grid gap-3 sm:grid-cols-2 ${showKraken ? 'lg:grid-cols-3' : ''}`}
+    >
       <div className="tile tile-bank">
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
           {t('common.cashSavings')}
@@ -111,18 +116,20 @@ export function SummaryStrip({
           {formatMoney(bankBalanceCents, currency)}
         </p>
       </div>
-      <KrakenBalanceCard
-        krakenBalance={krakenBalance}
-        loading={krakenLoading}
-        live={krakenLive}
-        onRefresh={onRefreshKraken}
-        refreshing={refreshingKraken}
-      />
+      {showKraken ? (
+        <KrakenBalanceCard
+          krakenBalance={krakenBalance}
+          loading={krakenLoading}
+          live={krakenLive}
+          onRefresh={onRefreshKraken}
+          refreshing={refreshingKraken}
+        />
+      ) : null}
       <div className="tile tile-wealth">
         <p className="text-xs font-semibold uppercase tracking-wide text-teal-800">
           {t('month.wealth.netWorthNow')}
         </p>
-        {krakenLoading && !krakenBalance ? (
+        {showKraken && krakenLoading && !krakenBalance ? (
           <p className="mt-1 text-sm text-(--muted)">{t('common.loading')}</p>
         ) : (
           <>
@@ -132,20 +139,24 @@ export function SummaryStrip({
             <p className="mt-1 text-xs text-(--muted)">
               {includeKraken
                 ? t('month.wealth.sourceBoth')
-                : sameCurrency
-                  ? t('month.wealth.sourceBankUnavailable')
-                  : t('month.wealth.sourceBankWrongCurrency', {
-                      currency: krakenCurrency,
-                    })}
+                : showKraken
+                  ? sameCurrency
+                    ? t('month.wealth.sourceBankUnavailable')
+                    : t('month.wealth.sourceBankWrongCurrency', {
+                        currency: krakenCurrency,
+                      })
+                  : t('month.wealth.sourceCashOnly')}
             </p>
           </>
         )}
       </div>
-      <div className="tile tile-left sm:col-span-2 lg:col-span-3">
+      <div
+        className={`tile tile-left ${showKraken ? 'sm:col-span-2 lg:col-span-3' : 'sm:col-span-2'}`}
+      >
         <p className="text-xs font-semibold uppercase tracking-wide text-(--left)">
           {t('month.wealth.projectedAfterMonth')}
         </p>
-        {krakenLoading && !krakenBalance ? (
+        {showKraken && krakenLoading && !krakenBalance ? (
           <p className="mt-1 text-sm text-(--muted)">{t('common.loading')}</p>
         ) : (
           <>

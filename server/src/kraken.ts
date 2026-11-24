@@ -1,4 +1,5 @@
 import { createHash, createHmac } from 'node:crypto'
+import { FEATURES } from './features.js'
 
 const KRAKEN_API = 'https://api.kraken.com'
 
@@ -412,6 +413,21 @@ async function fetchKrakenTotals(credentials: {
 export async function getKrakenCryptoBalance(
   options: { forceRefresh?: boolean } = {},
 ): Promise<KrakenCryptoBalance> {
+  const updatedAt = new Date().toISOString()
+
+  if (!FEATURES.kraken) {
+    return {
+      balanceCents: 0,
+      earnCents: 0,
+      spotCents: 0,
+      currency: 'EUR',
+      configured: false,
+      error: 'Kraken is disabled (FEATURES.kraken)',
+      updatedAt,
+      cached: false,
+    }
+  }
+
   const forceRefresh = options.forceRefresh === true
   const now = Date.now()
 
@@ -424,7 +440,6 @@ export async function getKrakenCryptoBalance(
     return { ...cachedBalance, cached: true }
   }
 
-  const updatedAt = new Date().toISOString()
   const credentials = getCredentials()
 
   if (!credentials) {

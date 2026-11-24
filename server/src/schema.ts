@@ -1,6 +1,7 @@
 import { createSchema } from 'graphql-yoga'
 import type { Category, Direction, Prisma } from '@prisma/client'
 import { ensureSettings, prisma } from './db.js'
+import { FEATURES } from './features.js'
 import { getKrakenCryptoBalance } from './kraken.js'
 
 const MONTH_NAMES = [
@@ -272,6 +273,9 @@ async function summarizeMonth(monthId: string) {
 }
 
 async function snapshotKrakenOntoMonth(monthId: string) {
+  if (!FEATURES.kraken) {
+    return prisma.month.findUniqueOrThrow({ where: { id: monthId } })
+  }
   const live = await getKrakenCryptoBalance({ forceRefresh: true })
   if (live.error || !live.configured) {
     return prisma.month.findUniqueOrThrow({ where: { id: monthId } })
@@ -355,7 +359,7 @@ export const schema = createSchema({
           throw new Error(`${monthLabel(next.year, next.month)} already exists`)
         }
 
-        if (latest.krakenSnapshottedAt == null) {
+        if (FEATURES.kraken && latest.krakenSnapshottedAt == null) {
           await snapshotKrakenOntoMonth(latest.id)
         }
 

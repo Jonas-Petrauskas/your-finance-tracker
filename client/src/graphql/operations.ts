@@ -56,9 +56,6 @@ export const GET_HOME = gql`
       name
       targetCents
     }
-    krakenBalance {
-      ${KRAKEN_BALANCE_FIELDS}
-    }
   }
 `
 

@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { GET_KRAKEN_BALANCE } from '../graphql/operations'
+import { FEATURES } from '../lib/features'
 import {
   resolveDisplayKraken,
   usesLiveKraken,
@@ -16,24 +17,25 @@ export function useKrakenBalance(
   month: MonthKrakenFields | null | undefined,
   options?: { skip?: boolean },
 ) {
-  const live = usesLiveKraken(month)
+  const enabled = FEATURES.kraken
+  const live = enabled && usesLiveKraken(month)
   const {
     data,
     loading: krakenLoading,
     refetch,
   } = useQuery<KrakenData>(GET_KRAKEN_BALANCE, {
     variables: { forceRefresh: false },
-    skip: Boolean(options?.skip) || !live,
+    skip: !enabled || Boolean(options?.skip) || !live,
   })
   const [refreshingKraken, setRefreshingKraken] = useState(false)
 
-  const displayKraken = useMemo(
-    () => resolveDisplayKraken(month, data?.krakenBalance),
-    [month, data?.krakenBalance],
-  )
+  const displayKraken = useMemo(() => {
+    if (!enabled) return null
+    return resolveDisplayKraken(month, data?.krakenBalance)
+  }, [enabled, month, data?.krakenBalance])
 
   async function refreshKraken() {
-    if (!live) return
+    if (!enabled || !live) return
     setRefreshingKraken(true)
     try {
       await refetch({ forceRefresh: true })

@@ -57,7 +57,7 @@
       },
       "wealth": {
         "title": "Wealth & goals",
-        "description": "Bank balance, optional Kraken snapshot, and buffers tracked against your net worth."
+        "description": "Cash savings and buffers tracked against your net worth."
       }
     }
   },
@@ -112,11 +112,12 @@
     "wealth": {
       "netWorthNow": "Net worth now",
       "sourceBoth": "Cash + Kraken",
+      "sourceCashOnly": "Cash savings",
       "sourceBankUnavailable": "Cash only (Kraken unavailable)",
       "sourceBankWrongCurrency": "Cash only — Kraken is {{currency}}",
       "projectedAfterMonth": "Projected after month",
       "projectedBoth": "Cash + Kraken + left",
-      "projectedBankOnly": "Cash + left (Kraken excluded)",
+      "projectedBankOnly": "Cash + left",
       "savingsHint": "Enter cash you hold this month. This is manual — not linked to a bank account."
     },
     "runway": {
