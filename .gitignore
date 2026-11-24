@@ -19,6 +19,7 @@ server/prisma/dev.db
 
 # Local product notes (do not push)
 PRODUCT_BRAINSTORM.md
+todo.md
 
 # Editor
 .vscode/*
