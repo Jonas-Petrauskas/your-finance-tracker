@@ -63,25 +63,19 @@ Render settings (repo root):
 
 Do **not** use `corepack enable` on Render (read-only FS error).
 
-### Frontend (Cloudflare Pages)
+### Frontend (live — Cloudflare Pages)
 
-1. Push the Apollo/`VITE_GRAPHQL_URL` changes.
-2. Cloudflare Dashboard → Workers & Pages → Create → connect this repo.
-3. Settings (repo root):
+- **App:** https://your-finance-tracker.pages.dev  
 
-   - **Build command:** `pnpm install --frozen-lockfile && pnpm build:client`
-   - **Build output directory:** `client/dist`
-   - **Root directory:** leave empty
+Build settings (repo root):
 
-4. Environment variable (Production):
+- **Build command:** `pnpm install --frozen-lockfile && pnpm build:client`
+- **Build output directory:** `client/dist`
+- **Env:** `VITE_GRAPHQL_URL` = `https://your-finance-tracker.onrender.com/graphql`
 
-   - `VITE_GRAPHQL_URL` = `https://your-finance-tracker.onrender.com/graphql`
+On Render, set `CORS_ORIGIN` to include the Pages URL, e.g.:
 
-5. After deploy, copy the `*.pages.dev` URL into Render `CORS_ORIGIN`, e.g.:
-
-   `http://localhost:5173,https://YOUR-PROJECT.pages.dev`
-
-6. Redeploy Render (or restart) so CORS picks up the new origin.
+`http://localhost:5173,https://your-finance-tracker.pages.dev`
 
 Locally, leave `VITE_GRAPHQL_URL` unset so the Vite proxy still uses `/graphql`.
 
