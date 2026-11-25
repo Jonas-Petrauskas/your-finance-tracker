@@ -1,17 +1,21 @@
 # Monthly spending tracker
 
-Local React + GraphQL app for monthly income and expenses. Data stays in SQLite on this machine.
+React + GraphQL app for monthly income and expenses. Database is **Neon Postgres** (local and hosted).
 
 ## Stack
 
 - `client/` — Vite, React, TypeScript, Tailwind CSS, Apollo Client, React Router
-- `server/` — GraphQL Yoga, Prisma, SQLite
+- `server/` — GraphQL Yoga, Prisma, PostgreSQL (Neon)
 
-## Run
+## Setup
+
+1. Copy `server/.env.example` → `server/.env` and set `DATABASE_URL` to your Neon connection string.
+2. Install and apply migrations:
 
 ```bash
 pnpm install
-pnpm db:migrate
+pnpm db:generate
+pnpm db:migrate:deploy
 pnpm dev
 ```
 
@@ -41,5 +45,15 @@ KRAKEN_API_SECRET="..."
 ```
 
 Live Kraken is EUR. Combined totals include Kraken only when Settings currency is EUR. Restart `pnpm dev` after changing `.env` or feature flags.
+
+## Deploy (Phase 0)
+
+Hosted API: Render Web Service + Neon. See local notes in `notes/DEMO_DEPLOY_STACK.md` (gitignored).
+
+Typical Render settings (repo root):
+
+- **Build:** `corepack enable && pnpm install --frozen-lockfile && pnpm db:generate && pnpm db:migrate:deploy`
+- **Start:** `pnpm start:server`
+- **Env:** `DATABASE_URL` (Neon), optional `CORS_ORIGIN`
 
 Use GraphiQL to try the same queries and mutations the UI uses while learning GraphQL.

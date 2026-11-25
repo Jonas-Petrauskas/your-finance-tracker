@@ -5,15 +5,23 @@ import { schema } from './schema.js'
 
 const PORT = Number(process.env.PORT) || 4000
 
+const corsOrigin = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : ['http://localhost:5173']
+
 await ensureSettings()
 
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
+  cors: {
+    origin: corsOrigin,
+    credentials: true,
+  },
 })
 
 const server = createServer(yoga)
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`GraphQL ready at http://localhost:${PORT}/graphql`)
 })
