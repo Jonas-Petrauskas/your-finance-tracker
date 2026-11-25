@@ -48,12 +48,21 @@ Live Kraken is EUR. Combined totals include Kraken only when Settings currency i
 
 ## Deploy (Phase 0)
 
-Hosted API: Render Web Service + Neon. See local notes in `notes/DEMO_DEPLOY_STACK.md` (gitignored).
+Hosted API is live (Render + Neon):
+
+- **API / GraphiQL:** https://your-finance-tracker.onrender.com/graphql  
+- **Service URL:** https://your-finance-tracker.onrender.com  
+
+Free Render sleeps when idle — first request after idle can take ~30–60s.
 
 Typical Render settings (repo root):
 
-- **Build:** `corepack enable && pnpm install --frozen-lockfile && pnpm db:generate && pnpm db:migrate:deploy`
+- **Build:** `pnpm install --frozen-lockfile && pnpm db:generate && pnpm db:migrate:deploy`
 - **Start:** `pnpm start:server`
 - **Env:** `DATABASE_URL` (Neon), optional `CORS_ORIGIN`
+
+Do **not** use `corepack enable` on Render (read-only FS error).
+
+Local notes: `notes/DEMO_DEPLOY_STACK.md` (gitignored).
 
 Use GraphiQL to try the same queries and mutations the UI uses while learning GraphQL.
