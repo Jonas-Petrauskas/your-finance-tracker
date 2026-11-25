@@ -7,7 +7,10 @@ const PORT = Number(process.env.PORT) || 4000
 
 const corsOrigin = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
-  : ['http://localhost:5173']
+  : [
+      'http://localhost:5173',
+      'https://your-finance-tracker.pages.dev',
+    ]
 
 await ensureSettings()
 
