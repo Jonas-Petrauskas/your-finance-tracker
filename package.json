@@ -9,7 +9,8 @@
     "db:migrate": "pnpm --filter server db:migrate",
     "db:migrate:deploy": "pnpm --filter server db:migrate:deploy",
     "db:generate": "pnpm --filter server db:generate",
-    "start:server": "pnpm --filter server start"
+    "start:server": "pnpm --filter server start",
+    "build:client": "pnpm --filter client build"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

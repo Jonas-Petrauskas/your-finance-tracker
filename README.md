@@ -48,20 +48,42 @@ Live Kraken is EUR. Combined totals include Kraken only when Settings currency i
 
 ## Deploy (Phase 0)
 
-Hosted API is live (Render + Neon):
+### Backend (live)
 
 - **API / GraphiQL:** https://your-finance-tracker.onrender.com/graphql  
 - **Service URL:** https://your-finance-tracker.onrender.com  
 
 Free Render sleeps when idle — first request after idle can take ~30–60s.
 
-Typical Render settings (repo root):
+Render settings (repo root):
 
 - **Build:** `pnpm install --frozen-lockfile && pnpm db:generate && pnpm db:migrate:deploy`
 - **Start:** `pnpm start:server`
-- **Env:** `DATABASE_URL` (Neon), optional `CORS_ORIGIN`
+- **Env:** `DATABASE_URL` (Neon), `CORS_ORIGIN` (comma-separated; include `http://localhost:5173` and your Pages URL)
 
 Do **not** use `corepack enable` on Render (read-only FS error).
+
+### Frontend (Cloudflare Pages)
+
+1. Push the Apollo/`VITE_GRAPHQL_URL` changes.
+2. Cloudflare Dashboard → Workers & Pages → Create → connect this repo.
+3. Settings (repo root):
+
+   - **Build command:** `pnpm install --frozen-lockfile && pnpm build:client`
+   - **Build output directory:** `client/dist`
+   - **Root directory:** leave empty
+
+4. Environment variable (Production):
+
+   - `VITE_GRAPHQL_URL` = `https://your-finance-tracker.onrender.com/graphql`
+
+5. After deploy, copy the `*.pages.dev` URL into Render `CORS_ORIGIN`, e.g.:
+
+   `http://localhost:5173,https://YOUR-PROJECT.pages.dev`
+
+6. Redeploy Render (or restart) so CORS picks up the new origin.
+
+Locally, leave `VITE_GRAPHQL_URL` unset so the Vite proxy still uses `/graphql`.
 
 Local notes: `notes/DEMO_DEPLOY_STACK.md` (gitignored).
 

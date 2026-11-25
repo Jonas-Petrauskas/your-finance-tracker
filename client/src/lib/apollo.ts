@@ -1,7 +1,9 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client'
 
+const graphqlUri = import.meta.env.VITE_GRAPHQL_URL ?? '/graphql'
+
 export const apolloClient = new ApolloClient({
-  link: new HttpLink({ uri: '/graphql' }),
+  link: new HttpLink({ uri: graphqlUri }),
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: { fetchPolicy: 'cache-and-network' },
