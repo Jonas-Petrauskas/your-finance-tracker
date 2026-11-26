@@ -63,6 +63,82 @@
         "description": "One next step when you open the app. No jargon wall. No guilt if you only check in weekly.",
         "detail": "Last month’s plan carries forward (one-offs stay out of the way). A quiet buffer and optional goals stay in sight—enough structure to feel in control, never enough to feel like a second job."
       }
+    },
+    "footer": {
+      "brand": "Personal money",
+      "tagline": "A calm check-in for your week—nothing more.",
+      "navLabel": "Legal",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "copyright": "© {{year}} Personal money"
+    }
+  },
+  "legal": {
+    "back": "← Back to home",
+    "footerNote": "These pages describe how Personal money works today. They are written in plain language for a friends demo and are not a substitute for formal legal counsel.",
+    "privacy": {
+      "title": "Privacy",
+      "updated": "Last updated: 26 November 2026",
+      "s1": {
+        "heading": "Who this is for",
+        "body": "Personal money is a personal cashflow companion shared as a private demo. This notice explains what information the app handles when you sign in and use it."
+      },
+      "s2": {
+        "heading": "What we collect",
+        "body": "Account details through Clerk (such as your name, email, and sign-in provider like Google). Spending data you enter yourself: months, planned income and expenses, bills, payment status, goals, currency preference, and optional notes. We do not connect to your bank or pull transactions automatically in this demo."
+      },
+      "s3": {
+        "heading": "Why we use it",
+        "body": "To keep you signed in, show your week pulse and bills, save your plan across months, and keep each person’s data separate from everyone else’s. We do not sell your data or use it for advertising."
+      },
+      "s4": {
+        "heading": "Where it lives",
+        "body": "Sign-in is handled by Clerk. App data is stored in a hosted Postgres database (Neon) and served by the app’s backend host. The website is served from a static host (Cloudflare Pages). Those providers process data only to run the service."
+      },
+      "s5": {
+        "heading": "How long we keep it",
+        "body": "We keep your account and spending data while you use the demo. If you want it removed, delete or disconnect your account in the account menu and ask the person running this demo to erase remaining database records tied to you."
+      },
+      "s6": {
+        "heading": "Your choices",
+        "body": "You can stop using the app at any time. You can ask what data we hold about you and ask for deletion. Because this is a small demo, requests are handled manually by the operator—not through an automated portal."
+      },
+      "s7": {
+        "heading": "Contact",
+        "body": "Questions about privacy: reach the person who invited you to this demo. If you need a formal contact later, it will be listed here."
+      }
+    },
+    "terms": {
+      "title": "Terms",
+      "updated": "Last updated: 26 November 2026",
+      "s1": {
+        "heading": "What Personal money is",
+        "body": "Personal money is a simple tool to check whether your week looks okay—bills, planned spend, and what’s left. It is provided as a personal / friends demo, not as a bank, advisor, or regulated financial service."
+      },
+      "s2": {
+        "heading": "Not financial advice",
+        "body": "Numbers and summaries in the app are based on what you enter. They are for personal organization only. Nothing here is investment, tax, credit, or legal advice. Decisions about money remain yours."
+      },
+      "s3": {
+        "heading": "Your account",
+        "body": "You sign in with Clerk (for example Google). Keep your sign-in secure. You are responsible for the accuracy of the amounts and bills you add, and for how you use the information shown."
+      },
+      "s4": {
+        "heading": "Acceptable use",
+        "body": "Use the app for your own household cashflow tracking. Do not try to break the service, access someone else’s data, abuse the API, or use it for anything illegal. The operator may suspend access if misuse is clear."
+      },
+      "s5": {
+        "heading": "Availability",
+        "body": "The demo may change, break, pause, or shut down without notice. Features can appear or disappear as the product evolves. There is no uptime guarantee and no paid SLA."
+      },
+      "s6": {
+        "heading": "Limitation",
+        "body": "The service is provided “as is.” To the fullest extent allowed by law, the operator is not liable for losses from relying on the app, downtime, data loss, or third-party outages (Clerk, hosting, database). Use a backup of anything important."
+      },
+      "s7": {
+        "heading": "Changes",
+        "body": "These terms may be updated as the demo grows. The “Last updated” date at the top will change when they do. Continued use after an update means you accept the revised terms for this demo."
+      }
     }
   },
   "home": {

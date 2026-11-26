@@ -2,6 +2,7 @@ import { SignInButton, useAuth } from '@clerk/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { LandingFeatures } from '../components/Landing/LandingFeatures'
+import { LandingFooter } from '../components/Landing/LandingFooter'
 import { LandingHeroVisual } from '../components/Landing/LandingHeroVisual'
 import '../components/Landing/landing.css'
 
@@ -66,6 +67,7 @@ export function LandingPage() {
       </div>
 
       <LandingFeatures />
+      <LandingFooter />
     </div>
   )
 }

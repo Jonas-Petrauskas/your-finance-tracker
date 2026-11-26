@@ -786,6 +786,115 @@
   animation: landing-mini-wave 1s ease-out 0.4s forwards;
 }
 
+/* Footer */
+.landing-footer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 2.75rem;
+  box-sizing: border-box;
+}
+
+.landing-footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.25rem 0;
+  border-top: 1px solid rgb(20 32 28 / 0.08);
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .landing-footer-inner {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    max-width: 48rem;
+    padding-inline: 1.75rem;
+    padding-top: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-footer-inner {
+    max-width: 52rem;
+  }
+}
+
+.landing-footer-brand {
+  text-align: left;
+  max-width: 22rem;
+}
+
+.landing-footer-name {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Figtree', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--accent-strong);
+}
+
+.landing-footer-tagline {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.landing-footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  text-align: left;
+}
+
+@media (min-width: 640px) {
+  .landing-footer-meta {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.landing-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
+}
+
+.landing-footer-link {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.landing-footer-link:hover {
+  color: var(--ink);
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.landing-footer-copy {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgb(79 99 90 / 0.75);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-fade,
   .landing-week-arc,
