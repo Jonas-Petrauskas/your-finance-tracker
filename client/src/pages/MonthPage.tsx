@@ -1,3 +1,4 @@
+import { UserButton } from '@clerk/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { BillsTab } from '../components/Month/sections/BillsTab'
@@ -52,9 +53,12 @@ export function MonthPage() {
               (valid ? `${year}-${month}` : t('month.titleFallback'))}
           </h1>
         </div>
-        {monthRecord ? (
-          <CurrencySetting currency={currency} year={year} month={month} />
-        ) : null}
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          {monthRecord ? (
+            <CurrencySetting currency={currency} year={year} month={month} />
+          ) : null}
+          <UserButton />
+        </div>
       </header>
 
       <QueryStatus

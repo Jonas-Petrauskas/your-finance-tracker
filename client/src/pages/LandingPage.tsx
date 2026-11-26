@@ -1,3 +1,4 @@
+import { Show, SignInButton } from '@clerk/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { LandingHeroVisual } from '../components/Landing/LandingHeroVisual'
@@ -30,12 +31,26 @@ export function LandingPage() {
               {t('landing.blurb')}
             </p>
             <div className="landing-fade landing-delay-4 pt-1">
-              <Link
-                to="/months"
-                className="btn-primary landing-cta inline-flex px-6 py-3 text-base"
+              <Show
+                when="signed-out"
+                fallback={
+                  <Link
+                    to="/months"
+                    className="btn-primary landing-cta inline-flex px-6 py-3 text-base"
+                  >
+                    {t('landing.ctaSignedIn')}
+                  </Link>
+                }
               >
-                {t('landing.cta')}
-              </Link>
+                <SignInButton mode="modal" forceRedirectUrl="/months">
+                  <button
+                    type="button"
+                    className="btn-primary landing-cta inline-flex cursor-pointer px-6 py-3 text-base"
+                  >
+                    {t('landing.cta')}
+                  </button>
+                </SignInButton>
+              </Show>
             </div>
           </div>
 

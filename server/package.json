@@ -12,6 +12,7 @@
     "db:push": "prisma db push"
   },
   "dependencies": {
+    "@clerk/backend": "3.33.0",
     "@prisma/client": "^6.19.0",
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.16.0"

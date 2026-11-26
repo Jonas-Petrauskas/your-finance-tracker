@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.14.0",
+    "@clerk/react": "^6.19.5",
     "graphql": "^16.11.0",
     "i18next": "^27.2.3",
     "react": "^19.3.1",

@@ -4,5 +4,9 @@ packages:
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
+  '@clerk/shared': true
   esbuild: true
   prisma: true
+minimumReleaseAgeExclude:
+  - '@clerk/backend@3.33.0'
+  - '@clerk/shared@4.49.0'

@@ -1,16 +1,20 @@
 # Monthly spending tracker
 
-React + GraphQL app for monthly income and expenses. Database is **Neon Postgres** (local and hosted).
+React + GraphQL app for monthly income and expenses. Database is **Neon Postgres**. Auth is **Clerk** (Google sign-in).
 
 ## Stack
 
-- `client/` — Vite, React, TypeScript, Tailwind CSS, Apollo Client, React Router
-- `server/` — GraphQL Yoga, Prisma, PostgreSQL (Neon)
+- `client/` — Vite, React, TypeScript, Tailwind CSS, Apollo Client, React Router, Clerk
+- `server/` — GraphQL Yoga, Prisma, PostgreSQL (Neon), Clerk token verify
 
 ## Setup
 
-1. Copy `server/.env.example` → `server/.env` and set `DATABASE_URL` to your Neon connection string.
-2. Install and apply migrations:
+1. Copy env examples and fill keys:
+
+   - `server/.env` ← `DATABASE_URL`, `CLERK_SECRET_KEY`
+   - `client/.env` ← `VITE_CLERK_PUBLISHABLE_KEY`
+
+2. Install and migrate:
 
 ```bash
 pnpm install
@@ -19,66 +23,36 @@ pnpm db:migrate:deploy
 pnpm dev
 ```
 
-- App: http://localhost:5173 — home lists months; open one for that month’s summary
-- GraphiQL: http://localhost:4000/graphql
+- App: http://localhost:5173 — landing is public; `/months` requires Google sign-in
+- GraphQL: http://localhost:4000/graphql (needs `Authorization: Bearer <Clerk session JWT>`)
 
-**Add next month** copies non-one-off items + bank from the latest month (and snapshots Kraken when that feature is enabled).
-
-Month page includes: net worth / projected totals, weekly runway, billing calendar (mark paid), goals, recurring + one-off items.
+**Add next month** copies non-one-off items + bank from the latest month (and snapshots Kraken when that feature is enabled). Data is scoped per signed-in user.
 
 ## Feature flags
-
-Toggle product features without deleting code:
 
 - Client: `client/src/lib/features.ts`
 - Server: `server/src/features.ts` (keep in sync)
 
-`FEATURES.kraken` is currently **off**. Set both to `true` to restore the Kraken Wealth card, live balance queries, and month snapshots.
+`FEATURES.kraken` is currently **off**.
 
-## Kraken (when enabled)
+## Deploy
 
-Put read-only keys in `server/.env` (never commit them):
+### Backend (Render)
 
-```
-KRAKEN_API_KEY="..."
-KRAKEN_API_SECRET="..."
-```
-
-Live Kraken is EUR. Combined totals include Kraken only when Settings currency is EUR. Restart `pnpm dev` after changing `.env` or feature flags.
-
-## Deploy (Phase 0)
-
-### Backend (live)
-
-- **API / GraphiQL:** https://your-finance-tracker.onrender.com/graphql  
-- **Service URL:** https://your-finance-tracker.onrender.com  
-
-Free Render sleeps when idle — first request after idle can take ~30–60s.
-
-Render settings (repo root):
-
+- **API:** https://your-finance-tracker.onrender.com/graphql  
 - **Build:** `pnpm install --frozen-lockfile && pnpm db:generate && pnpm db:migrate:deploy`
 - **Start:** `pnpm start:server`
-- **Env:** `DATABASE_URL` (Neon), `CORS_ORIGIN` (comma-separated; include `http://localhost:5173` and your Pages URL)
+- **Env:** `DATABASE_URL`, `CLERK_SECRET_KEY`, `CORS_ORIGIN=http://localhost:5173,https://your-finance-tracker.pages.dev`
 
-Do **not** use `corepack enable` on Render (read-only FS error).
-
-### Frontend (live — Cloudflare Pages)
+### Frontend (Cloudflare Pages)
 
 - **App:** https://your-finance-tracker.pages.dev  
+- **Build:** `pnpm install --frozen-lockfile && pnpm build:client`
+- **Output:** `client/dist`
+- **Env:**  
+  - `VITE_GRAPHQL_URL=https://your-finance-tracker.onrender.com/graphql`  
+  - `VITE_CLERK_PUBLISHABLE_KEY=pk_…`
 
-Build settings (repo root):
-
-- **Build command:** `pnpm install --frozen-lockfile && pnpm build:client`
-- **Build output directory:** `client/dist`
-- **Env:** `VITE_GRAPHQL_URL` = `https://your-finance-tracker.onrender.com/graphql`
-
-On Render, set `CORS_ORIGIN` to include the Pages URL, e.g.:
-
-`http://localhost:5173,https://your-finance-tracker.pages.dev`
-
-Locally, leave `VITE_GRAPHQL_URL` unset so the Vite proxy still uses `/graphql`.
+After changing Pages env vars, **rebuild**. Clerk Production instance is needed for a fully “prod” Google OAuth setup; Development keys work for local + early demos if Clerk allows the Pages origin.
 
 Local notes: `notes/DEMO_DEPLOY_STACK.md` (gitignored).
-
-Use GraphiQL to try the same queries and mutations the UI uses while learning GraphQL.

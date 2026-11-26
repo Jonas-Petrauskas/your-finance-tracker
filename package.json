@@ -14,5 +14,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@clerk/backend": "3.33.0"
   }
 }

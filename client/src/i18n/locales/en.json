@@ -42,8 +42,9 @@
   "landing": {
     "brand": "Monthly spending",
     "headline": "See what’s left before the month runs out.",
-    "blurb": "A quiet personal tracker for income, bills, runway, and buffers—kept local on your machine.",
-    "cta": "Track your spending",
+    "blurb": "A quiet personal tracker for income, bills, runway, and buffers—sign in to keep your months private.",
+    "cta": "Sign in to track spending",
+    "ctaSignedIn": "Open my months",
     "featuresTitle": "What you get",
     "featuresIntro": "Open a month, plan the cashflow, and keep an eye on wealth without a spreadsheet.",
     "features": {
@@ -189,7 +190,7 @@
     "confirmDeleteItem": "Delete “{{name}}”?"
   },
   "errors": {
-    "graphqlUnreachable": "Could not reach GraphQL. Is the server running on port 4000?",
+    "graphqlUnreachable": "Could not reach the API. Check that you are signed in and the server is running.",
     "createNextMonth": "Could not create next month",
     "deleteMonth": "Could not delete month",
     "createItem": "Could not create item",

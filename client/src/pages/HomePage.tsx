@@ -1,3 +1,4 @@
+import { UserButton } from '@clerk/react'
 import { useTranslation } from 'react-i18next'
 import { MonthList } from '../components/Home/sections/MonthList'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
@@ -33,14 +34,17 @@ export function HomePage() {
           </h1>
           <p className="mt-2 max-w-xl text-(--muted)">{t('home.subtitle')}</p>
         </div>
-        <button
-          type="button"
-          disabled={creating}
-          onClick={() => void addNextMonth()}
-          className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
-        >
-          {creating ? t('home.addingNextMonth') : t('home.addNextMonth')}
-        </button>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <button
+            type="button"
+            disabled={creating}
+            onClick={() => void addNextMonth()}
+            className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
+          >
+            {creating ? t('home.addingNextMonth') : t('home.addNextMonth')}
+          </button>
+          <UserButton />
+        </div>
       </header>
 
       <QueryStatus
