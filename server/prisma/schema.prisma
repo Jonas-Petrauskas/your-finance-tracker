@@ -21,8 +21,22 @@ enum Category {
   OTHER
 }
 
+model User {
+  id        String    @id @default(cuid())
+  clerkId   String    @unique
+  email     String?
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  months    Month[]
+  goals     Goal[]
+  settings  Settings?
+}
+
 model Month {
   id                  String          @id @default(cuid())
+  userId              String
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   year                Int
   month               Int
   bankBalanceCents    Int             @default(0)
@@ -34,7 +48,8 @@ model Month {
   updatedAt           DateTime        @updatedAt
   items               RecurringItem[]
 
-  @@unique([year, month])
+  @@unique([userId, year, month])
+  @@index([userId])
 }
 
 model RecurringItem {
@@ -58,13 +73,19 @@ model RecurringItem {
 
 model Goal {
   id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name        String
   targetCents Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Settings {
-  id       Int    @id @default(1)
+  id       String @id @default(cuid())
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   currency String @default("EUR")
 }

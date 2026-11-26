@@ -1,5 +1,6 @@
 import { createSchema } from 'graphql-yoga'
 import type { Category, Direction, Prisma } from '@prisma/client'
+import { requireUser, type GraphQLContext } from './auth.js'
 import { ensureSettings, prisma } from './db.js'
 import { FEATURES } from './features.js'
 import { getKrakenCryptoBalance } from './kraken.js'
@@ -81,6 +82,12 @@ const typeDefs = /* GraphQL */ `
     currency: String!
   }
 
+  type Me {
+    id: ID!
+    email: String
+    name: String
+  }
+
   type KrakenBalance {
     balanceCents: Int!
     earnCents: Int!
@@ -110,6 +117,7 @@ const typeDefs = /* GraphQL */ `
   }
 
   type Query {
+    me: Me!
     months: [Month!]!
     monthByDate(year: Int!, month: Int!): Month
     settings: Settings!
@@ -291,6 +299,30 @@ async function snapshotKrakenOntoMonth(monthId: string) {
   })
 }
 
+async function requireOwnedMonth(userId: string, monthId: string) {
+  const month = await prisma.month.findFirst({
+    where: { id: monthId, userId },
+  })
+  if (!month) throw new Error('Month not found')
+  return month
+}
+
+async function requireOwnedItem(userId: string, itemId: string) {
+  const item = await prisma.recurringItem.findFirst({
+    where: { id: itemId, month: { userId } },
+  })
+  if (!item) throw new Error('Item not found')
+  return item
+}
+
+async function requireOwnedGoal(userId: string, goalId: string) {
+  const goal = await prisma.goal.findFirst({
+    where: { id: goalId, userId },
+  })
+  if (!goal) throw new Error('Goal not found')
+  return goal
+}
+
 const monthResolvers = {
   label: (parent: MonthRow) => monthLabel(parent.year, parent.month),
   krakenSnapshottedAt: (parent: MonthRow) =>
@@ -310,32 +342,60 @@ export const schema = createSchema({
   resolvers: {
     Month: monthResolvers,
     Query: {
-      months: () =>
-        prisma.month.findMany({
+      me: (_: unknown, __: unknown, ctx: GraphQLContext) => {
+        const user = requireUser(ctx)
+        return { id: user.id, email: user.email, name: user.name }
+      },
+      months: (_: unknown, __: unknown, ctx: GraphQLContext) => {
+        const user = requireUser(ctx)
+        return prisma.month.findMany({
+          where: { userId: user.id },
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
-        }),
+        })
+      },
       monthByDate: (
         _: unknown,
         { year, month }: { year: number; month: number },
+        ctx: GraphQLContext,
       ) => {
+        const user = requireUser(ctx)
         validateYearMonth(year, month)
         return prisma.month.findUnique({
-          where: { year_month: { year, month } },
+          where: {
+            userId_year_month: { userId: user.id, year, month },
+          },
         })
       },
-      settings: async () => {
-        const settings = await ensureSettings()
+      settings: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
+        const user = requireUser(ctx)
+        const settings = await ensureSettings(user.id)
         return { currency: settings.currency }
       },
       krakenBalance: (
         _: unknown,
         { forceRefresh }: { forceRefresh?: boolean | null },
-      ) => getKrakenCryptoBalance({ forceRefresh: forceRefresh === true }),
-      goals: () => prisma.goal.findMany({ orderBy: { name: 'asc' } }),
+        ctx: GraphQLContext,
+      ) => {
+        requireUser(ctx)
+        return getKrakenCryptoBalance({ forceRefresh: forceRefresh === true })
+      },
+      goals: (_: unknown, __: unknown, ctx: GraphQLContext) => {
+        const user = requireUser(ctx)
+        return prisma.goal.findMany({
+          where: { userId: user.id },
+          orderBy: { name: 'asc' },
+        })
+      },
     },
     Mutation: {
-      createNextMonth: async () => {
+      createNextMonth: async (
+        _: unknown,
+        __: unknown,
+        ctx: GraphQLContext,
+      ) => {
+        const user = requireUser(ctx)
         const latest = await prisma.month.findFirst({
+          where: { userId: user.id },
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
           include: { items: true },
         })
@@ -344,6 +404,7 @@ export const schema = createSchema({
           const now = new Date()
           return prisma.month.create({
             data: {
+              userId: user.id,
               year: now.getFullYear(),
               month: now.getMonth() + 1,
               bankBalanceCents: 0,
@@ -353,7 +414,13 @@ export const schema = createSchema({
 
         const next = nextYearMonth(latest.year, latest.month)
         const existing = await prisma.month.findUnique({
-          where: { year_month: next },
+          where: {
+            userId_year_month: {
+              userId: user.id,
+              year: next.year,
+              month: next.month,
+            },
+          },
         })
         if (existing) {
           throw new Error(`${monthLabel(next.year, next.month)} already exists`)
@@ -379,6 +446,7 @@ export const schema = createSchema({
 
         return prisma.month.create({
           data: {
+            userId: user.id,
             year: next.year,
             month: next.month,
             bankBalanceCents: latest.bankBalanceCents,
@@ -386,20 +454,23 @@ export const schema = createSchema({
           },
         })
       },
-      deleteMonth: async (_: unknown, { id }: { id: string }) => {
-        try {
-          await prisma.month.delete({ where: { id } })
-          return true
-        } catch {
-          throw new Error('Month not found')
-        }
+      deleteMonth: async (
+        _: unknown,
+        { id }: { id: string },
+        ctx: GraphQLContext,
+      ) => {
+        const user = requireUser(ctx)
+        await requireOwnedMonth(user.id, id)
+        await prisma.month.delete({ where: { id } })
+        return true
       },
       createItem: async (
         _: unknown,
         { monthId, input }: { monthId: string; input: ItemInput },
+        ctx: GraphQLContext,
       ) => {
-        const month = await prisma.month.findUnique({ where: { id: monthId } })
-        if (!month) throw new Error('Month not found')
+        const user = requireUser(ctx)
+        await requireOwnedMonth(user.id, monthId)
         const data = validateItemInput(input)
         return prisma.recurringItem.create({
           data: {
@@ -411,40 +482,45 @@ export const schema = createSchema({
       updateItem: async (
         _: unknown,
         { id, input }: { id: string; input: ItemInput },
+        ctx: GraphQLContext,
       ) => {
+        const user = requireUser(ctx)
+        await requireOwnedItem(user.id, id)
         const data = validateItemInput(input)
-        try {
-          return await prisma.recurringItem.update({ where: { id }, data })
-        } catch {
-          throw new Error('Item not found')
-        }
+        return prisma.recurringItem.update({ where: { id }, data })
       },
-      deleteItem: async (_: unknown, { id }: { id: string }) => {
-        try {
-          await prisma.recurringItem.delete({ where: { id } })
-          return true
-        } catch {
-          throw new Error('Item not found')
-        }
+      deleteItem: async (
+        _: unknown,
+        { id }: { id: string },
+        ctx: GraphQLContext,
+      ) => {
+        const user = requireUser(ctx)
+        await requireOwnedItem(user.id, id)
+        await prisma.recurringItem.delete({ where: { id } })
+        return true
       },
       setItemPaid: async (
         _: unknown,
         { id, paid }: { id: string; paid: boolean },
+        ctx: GraphQLContext,
       ) => {
-        try {
-          return await prisma.recurringItem.update({
-            where: { id },
-            data: { paid },
-          })
-        } catch {
-          throw new Error('Item not found')
-        }
+        const user = requireUser(ctx)
+        await requireOwnedItem(user.id, id)
+        return prisma.recurringItem.update({
+          where: { id },
+          data: { paid },
+        })
       },
-      setCurrency: async (_: unknown, { currency }: { currency: string }) => {
+      setCurrency: async (
+        _: unknown,
+        { currency }: { currency: string },
+        ctx: GraphQLContext,
+      ) => {
+        const user = requireUser(ctx)
         const code = validateCurrency(currency)
         const settings = await prisma.settings.upsert({
-          where: { id: 1 },
-          create: { id: 1, currency: code },
+          where: { userId: user.id },
+          create: { userId: user.id, currency: code },
           update: { currency: code },
         })
         return { currency: settings.currency }
@@ -452,47 +528,55 @@ export const schema = createSchema({
       setMonthBankBalance: async (
         _: unknown,
         { monthId, amountCents }: { monthId: string; amountCents: number },
+        ctx: GraphQLContext,
       ) => {
+        const user = requireUser(ctx)
+        await requireOwnedMonth(user.id, monthId)
         const value = validateBankBalance(amountCents)
-        try {
-          return await prisma.month.update({
-            where: { id: monthId },
-            data: { bankBalanceCents: value },
-          })
-        } catch {
-          throw new Error('Month not found')
-        }
+        return prisma.month.update({
+          where: { id: monthId },
+          data: { bankBalanceCents: value },
+        })
       },
       snapshotMonthKraken: async (
         _: unknown,
         { monthId }: { monthId: string },
+        ctx: GraphQLContext,
       ) => {
-        const month = await prisma.month.findUnique({ where: { id: monthId } })
-        if (!month) throw new Error('Month not found')
+        const user = requireUser(ctx)
+        await requireOwnedMonth(user.id, monthId)
         return snapshotKrakenOntoMonth(monthId)
       },
-      createGoal: (_: unknown, { input }: { input: GoalInput }) => {
+      createGoal: (
+        _: unknown,
+        { input }: { input: GoalInput },
+        ctx: GraphQLContext,
+      ) => {
+        const user = requireUser(ctx)
         const data = validateGoalInput(input)
-        return prisma.goal.create({ data })
+        return prisma.goal.create({
+          data: { ...data, userId: user.id },
+        })
       },
       updateGoal: async (
         _: unknown,
         { id, input }: { id: string; input: GoalInput },
+        ctx: GraphQLContext,
       ) => {
+        const user = requireUser(ctx)
+        await requireOwnedGoal(user.id, id)
         const data = validateGoalInput(input)
-        try {
-          return await prisma.goal.update({ where: { id }, data })
-        } catch {
-          throw new Error('Goal not found')
-        }
+        return prisma.goal.update({ where: { id }, data })
       },
-      deleteGoal: async (_: unknown, { id }: { id: string }) => {
-        try {
-          await prisma.goal.delete({ where: { id } })
-          return true
-        } catch {
-          throw new Error('Goal not found')
-        }
+      deleteGoal: async (
+        _: unknown,
+        { id }: { id: string },
+        ctx: GraphQLContext,
+      ) => {
+        const user = requireUser(ctx)
+        await requireOwnedGoal(user.id, id)
+        await prisma.goal.delete({ where: { id } })
+        return true
       },
     },
   },
