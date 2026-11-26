@@ -40,25 +40,28 @@
     "billingDayOrdinal": "{{day}}"
   },
   "landing": {
-    "brand": "Monthly spending",
-    "headline": "See what’s left before the month runs out.",
-    "blurb": "A quiet personal tracker for income, bills, runway, and buffers—sign in to keep your months private.",
-    "cta": "Sign in to track spending",
-    "ctaSignedIn": "Open my months",
-    "featuresTitle": "What you get",
-    "featuresIntro": "Open a month, plan the cashflow, and keep an eye on wealth without a spreadsheet.",
+    "brand": "Personal money",
+    "headline": "Know if you’re fine this week—in under a minute.",
+    "blurb": "No spreadsheets. No forty settings. Just your bills, what’s left for the week, and a calm check-in when you need it.",
+    "cta": "Continue with Google",
+    "ctaSignedIn": "Check my week",
+    "featuresTitle": "Built for people who don’t track",
+    "featuresIntro": "Other finance apps feel like homework. This is a cashflow companion: open it, get a calm answer about your week, clear what’s due, and close the tab feeling lighter.",
     "features": {
-      "plan": {
-        "title": "Monthly plan",
-        "description": "Recurring income and expenses plus one-offs. Add the next month and carry forward what still applies."
+      "pulse": {
+        "title": "Your week at a glance",
+        "description": "The first thing you see is whether you’re fine for the days ahead—not a dashboard of charts.",
+        "detail": "Each month rolls income, planned spend, and what’s left into a simple pulse. Safe-to-spend for the week sits up front in plain language, so Friday dinner doesn’t turn into a spreadsheet session."
       },
       "bills": {
-        "title": "Bills & runway",
-        "description": "Billing days on a calendar, mark what’s paid, and a weekly runway from what’s still left."
+        "title": "Bills you can actually clear",
+        "description": "A short checklist of what’s due soon. Mark it paid, get a little lift, move on.",
+        "detail": "Rent, subscriptions, and the usual suspects live in one list for this month. No bank archaeology—just the bills you added, when they’re due, and a clear “done” when you’ve handled them."
       },
-      "wealth": {
-        "title": "Wealth & goals",
-        "description": "Cash savings and buffers tracked against your net worth."
+      "calm": {
+        "title": "Calm, not complicated",
+        "description": "One next step when you open the app. No jargon wall. No guilt if you only check in weekly.",
+        "detail": "Last month’s plan carries forward (one-offs stay out of the way). A quiet buffer and optional goals stay in sight—enough structure to feel in control, never enough to feel like a second job."
       }
     }
   },
