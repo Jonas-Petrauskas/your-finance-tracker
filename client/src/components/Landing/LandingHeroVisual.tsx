@@ -6,7 +6,6 @@ export function LandingHeroVisual() {
       <span className="landing-bubble landing-bubble-1" />
       <span className="landing-bubble landing-bubble-2" />
       <span className="landing-bubble landing-bubble-3" />
-      <span className="landing-bubble landing-bubble-4" />
 
       <svg
         className="landing-visual-svg"
@@ -16,42 +15,30 @@ export function LandingHeroVisual() {
       >
         <defs>
           <linearGradient id="landingArc" x1="40" y1="230" x2="320" y2="90" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#0d8a55" stopOpacity="0.2" />
-            <stop offset="0.5" stopColor="#1a6fd4" stopOpacity="0.65" />
-            <stop offset="1" stopColor="#0f7a5c" />
-          </linearGradient>
-          <linearGradient id="landingCore" x1="120" y1="120" x2="240" y2="240" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#e8fff4" />
-            <stop offset="1" stopColor="#7ee0b8" />
+            <stop stopColor="#e8a06a" stopOpacity="0.35" />
+            <stop offset="0.45" stopColor="#e07a4a" stopOpacity="0.85" />
+            <stop offset="1" stopColor="#5b8fd4" />
           </linearGradient>
         </defs>
 
-        <circle className="landing-ring landing-ring-a" cx="180" cy="180" r="148" />
-        <circle className="landing-ring landing-ring-b" cx="180" cy="180" r="118" />
-        <circle className="landing-ring landing-ring-c" cx="180" cy="180" r="88" />
+        {/* Soft week-cycle ring — background context only */}
+        <circle className="landing-week-ring" cx="180" cy="180" r="128" />
 
         <path
           className="landing-week-arc"
-          d="M42 236 C 88 205, 108 148, 152 136 C 196 124, 214 196, 256 178 C 298 160, 312 108, 332 82"
+          d="M48 248 C 92 210, 112 168, 148 152 C 188 134, 210 198, 248 176 C 286 156, 304 118, 328 96"
           stroke="url(#landingArc)"
         />
 
-        <circle className="landing-day landing-day-1" cx="68" cy="220" r="7" />
-        <circle className="landing-day landing-day-2" cx="126" cy="146" r="7" />
-        <circle className="landing-day landing-day-3" cx="190" cy="150" r="7" />
-        <circle className="landing-day landing-day-4" cx="252" cy="170" r="7" />
-        <circle className="landing-day landing-day-5" cx="310" cy="112" r="7" />
+        <circle className="landing-day landing-day-1" cx="72" cy="232" r="8" />
+        <circle className="landing-day landing-day-2" cx="128" cy="158" r="8" />
+        <circle className="landing-day landing-day-3" cx="188" cy="168" r="8" />
+        <circle className="landing-day landing-day-4" cx="246" cy="172" r="8" />
+        <circle className="landing-day landing-day-5" cx="308" cy="112" r="8" />
 
-        <circle className="landing-week-tip" cx="332" cy="82" r="10" />
-
-        <circle className="landing-core" cx="180" cy="180" r="58" fill="url(#landingCore)" />
-        <circle className="landing-core-ring" cx="180" cy="180" r="58" />
-        <path
-          className="landing-core-check"
-          d="M154 182 L172 200 L210 158"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        {/* “You’re fine” tip at end of the week path */}
+        <circle className="landing-week-tip" cx="328" cy="96" r="12" />
+        <circle className="landing-week-tip-core" cx="328" cy="96" r="5" />
       </svg>
     </div>
   )

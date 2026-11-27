@@ -209,7 +209,7 @@ export function SelectMenu<T extends string>({
                 left: position.left,
                 width: position.width,
               }}
-              className={`fixed z-[60] flex max-h-64 flex-col overflow-auto border border-(--line) bg-gradient-to-b from-white to-[#f7fcf9] shadow-[0_18px_44px_rgb(20_60_45_/_0.16)] outline-none ${
+              className={`fixed z-[60] flex max-h-64 flex-col overflow-auto border border-(--line) bg-gradient-to-b from-white to-[#fff8f2] shadow-[0_18px_44px_rgb(42_34_28_/_0.14)] outline-none ${
                 compact
                   ? 'gap-0.5 rounded-xl p-1'
                   : 'gap-1 rounded-2xl p-2'
@@ -232,7 +232,7 @@ export function SelectMenu<T extends string>({
                           : 'justify-between gap-2 rounded-xl px-3.5 py-2.5'
                       } ${
                         isSelected
-                          ? 'bg-gradient-to-b from-[#14916e] to-(--accent) font-semibold text-white shadow-[0_6px_14px_rgb(15_122_92_/_0.28)]'
+                          ? 'bg-gradient-to-b from-[#ea8a5c] to-(--accent) font-semibold text-white shadow-[0_6px_14px_rgb(224_122_74_/_0.28)]'
                           : isActive
                             ? 'bg-(--accent-soft) text-(--ink)'
                             : 'text-(--ink) hover:bg-(--accent-soft)/80'
