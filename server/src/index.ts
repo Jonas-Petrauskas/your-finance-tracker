@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import { createYoga } from 'graphql-yoga'
 import { resolveUserFromRequest, type GraphQLContext } from './auth.js'
-import { schema } from './schema.js'
+import { schema } from './graphql/schema.js'
 
 const PORT = Number(process.env.PORT) || 4000
 
