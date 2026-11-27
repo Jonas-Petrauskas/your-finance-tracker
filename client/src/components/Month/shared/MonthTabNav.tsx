@@ -18,7 +18,7 @@ export function MonthTabNav({ tab, onChange }: Props) {
     >
       <div
         role="tablist"
-        className="month-tablist flex gap-1 overflow-x-auto rounded-2xl border border-(--line) bg-white/80 p-1.5 shadow-[0_8px_24px_rgb(20_60_45_/_0.06)] backdrop-blur-md"
+        className="month-tablist flex gap-1 overflow-x-auto rounded-2xl border border-(--line) bg-white/80 p-1.5 shadow-[0_8px_24px_rgb(42_34_28_/_0.06)] backdrop-blur-md"
       >
         {TAB_IDS.map((id) => {
           const selected = tab === id

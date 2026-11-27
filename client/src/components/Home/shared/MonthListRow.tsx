@@ -19,7 +19,7 @@ export function MonthListRow({ month, currency, onDelete }: Props) {
     <li className="flex items-center gap-2.5">
       <Link
         to={`/months/${month.year}/${month.month}`}
-        className="month-row group flex min-w-0 flex-1 flex-col gap-3 rounded-2xl border border-(--line) px-4 py-4 shadow-[0_8px_24px_rgb(20_60_45_/_0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-(--accent) hover:shadow-[0_12px_28px_rgb(15_122_92_/_0.12)] sm:flex-row sm:items-center sm:justify-between"
+        className="month-row group flex min-w-0 flex-1 flex-col gap-3 rounded-2xl border border-(--line) px-4 py-4 shadow-[0_8px_24px_rgb(42_34_28_/_0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-(--accent) hover:shadow-[0_12px_28px_rgb(224_122_74_/_0.14)] sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="text-left">
           <p className="display text-lg font-semibold tracking-tight text-(--ink)">
